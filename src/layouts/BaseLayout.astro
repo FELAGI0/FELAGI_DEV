@@ -1,0 +1,85 @@
+---
+interface Props {
+  /** Page title without the site suffix. */
+  title: string;
+  /** Meta description for search engines and social previews. */
+  description?: string;
+}
+
+const { title, description = 'Portfolio of a software developer.' } = Astro.props;
+
+import ThemeScript from '@/components/ThemeScript.astro';
+import ThemeToggle from '@/components/ThemeToggle.astro';
+import '@/styles/global.css';
+
+const siteName = 'FELAGI_DEV';
+const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <ThemeScript />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="site-header__brand" href="/">{siteName}</a>
+        <ThemeToggle />
+      </div>
+    </header>
+    <main class="page">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <p class="site-footer__text">© {new Date().getFullYear()} {siteName}</p>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+    background-color: var(--bg-subtle);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 4rem;
+  }
+
+  .site-header__brand {
+    font-weight: 600;
+    letter-spacing: var(--tracking-tight);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .site-header__brand:hover {
+    color: var(--accent);
+  }
+
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding-block: var(--space-8);
+  }
+
+  .site-footer__text {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--fg-subtle);
+  }
+</style>

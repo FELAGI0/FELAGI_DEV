@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="FELAGI_DEV">
+  <rect width="32" height="32" rx="7" fill="#0e1116"/>
+  <path d="M9 22V10h9v3h-5.6v2.2h5v3h-5V22H9z" fill="#5b9dff"/>
+  <circle cx="22" cy="20" r="2" fill="#e6eaf0"/>
+</svg>

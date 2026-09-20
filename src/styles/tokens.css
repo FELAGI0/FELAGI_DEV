@@ -1,0 +1,86 @@
+/* Design tokens.
+   Dark is the default theme (defined on :root).
+   Light overrides only the color layer. */
+
+:root {
+  color-scheme: dark;
+
+  /* Neutral scale — dark base */
+  --bg: #0e1116;
+  --bg-subtle: #151a21;
+  --bg-raised: #1b222b;
+  --border: #262d38;
+  --border-strong: #38424f;
+
+  --fg: #e6eaf0;
+  --fg-muted: #9aa5b4;
+  --fg-subtle: #6b7683;
+
+  /* Single accent */
+  --accent: #5b9dff;
+  --accent-hover: #7bb0ff;
+  --accent-contrast: #0b1220;
+  --accent-soft: rgb(91 157 255 / 0.12);
+
+  /* Feedback */
+  --focus-ring: var(--accent);
+
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+  --text-3xl: clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem);
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.6;
+  --tracking-tight: -0.02em;
+
+  /* Space + shape */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  --container: 68rem;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.25);
+
+  --transition: 150ms ease;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #ffffff;
+  --bg-subtle: #f6f7f9;
+  --bg-raised: #ffffff;
+  --border: #e3e6ea;
+  --border-strong: #c7ccd3;
+
+  --fg: #14181d;
+  --fg-muted: #55606d;
+  --fg-subtle: #7a8592;
+
+  --accent: #1f6feb;
+  --accent-hover: #1a5fd0;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgb(31 111 235 / 0.1);
+
+  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px rgb(16 24 40 / 0.08);
+}

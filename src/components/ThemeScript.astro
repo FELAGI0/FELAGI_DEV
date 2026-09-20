@@ -1,0 +1,35 @@
+---
+/**
+ * Theme bootstrap. Must run synchronously, before first paint, so the
+ * page never flashes the wrong theme. `is:inline` keeps it out of the
+ * bundler and in <head> exactly where it is written.
+ *
+ * Resolution order: stored preference -> OS preference -> dark (default).
+ */
+const THEME_SCRIPT = `
+(function () {
+  var KEY = 'theme';
+  var root = document.documentElement;
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+  var theme = stored === 'light' || stored === 'dark'
+    ? stored
+    : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  root.dataset.theme = theme;
+  root.style.colorScheme = theme;
+})();
+`;
+
+/**
+ * Enables color transitions only after the first paint, so the initial
+ * render is not animated.
+ */
+const READY_SCRIPT = `
+requestAnimationFrame(function () {
+  document.documentElement.classList.add('theme-ready');
+});
+`;
+---
+
+<script is:inline set:html={THEME_SCRIPT} />
+<script is:inline set:html={READY_SCRIPT} />

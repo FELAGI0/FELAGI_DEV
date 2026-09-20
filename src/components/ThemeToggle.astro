@@ -1,0 +1,96 @@
+---
+/**
+ * Theme switcher for the two supported themes. No framework island:
+ * a plain button plus a tiny inline script. The accessible name and
+ * the icon state are kept in sync with the current `data-theme`.
+ */
+---
+
+<button
+  type="button"
+  id="theme-toggle"
+  class="theme-toggle"
+  aria-label="Toggle color theme"
+  aria-pressed="false"
+>
+  <span class="theme-toggle__icon theme-toggle__icon--dark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+    </svg>
+  </span>
+  <span class="theme-toggle__icon theme-toggle__icon--light" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7" />
+    </svg>
+  </span>
+  <span class="sr-only" id="theme-toggle-label">Switch theme</span>
+</button>
+
+<script>
+  const STORAGE_KEY = 'theme';
+  const root = document.documentElement;
+  const button = document.getElementById('theme-toggle');
+  const label = document.getElementById('theme-toggle-label');
+
+  type Theme = 'dark' | 'light';
+
+  function currentTheme(): Theme {
+    return root.dataset.theme === 'light' ? 'light' : 'dark';
+  }
+
+  function sync(theme: Theme): void {
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+    if (button) {
+      button.setAttribute('aria-pressed', String(theme === 'light'));
+    }
+    if (label) {
+      label.textContent = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
+    }
+  }
+
+  sync(currentTheme());
+
+  button?.addEventListener('click', () => {
+    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
+    sync(next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      /* storage unavailable (private mode) — the choice stays session-only */
+    }
+  });
+</script>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--bg-raised);
+    color: var(--fg-muted);
+  }
+
+  .theme-toggle:hover {
+    color: var(--fg);
+    border-color: var(--border-strong);
+  }
+
+  .theme-toggle__icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show the icon of the theme that the button switches *to* */
+  :global([data-theme='dark']) .theme-toggle__icon--light,
+  :global([data-theme='light']) .theme-toggle__icon--dark {
+    display: inline-flex;
+  }
+</style>
