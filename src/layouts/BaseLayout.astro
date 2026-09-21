@@ -7,7 +7,7 @@ import ThemeScript from '@/components/ThemeScript.astro';
 import ThemeToggle from '@/components/ThemeToggle.astro';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/consts';
 import { getLangFromUrl, localizePath, t } from '@/i18n/utils';
-import type { Lang, UIKey } from '@/i18n/ui';
+import type { Lang } from '@/i18n/ui';
 import '@/styles/global.css';
 
 interface Props {
@@ -45,10 +45,15 @@ if (import.meta.env.DEV && urlLang !== lang) {
   );
 }
 
-const nav: { key: UIKey; href: string }[] = [
-  { key: 'nav.home', href: localizePath('/', lang) },
-  { key: 'nav.projects', href: localizePath('/projects/', lang) },
-];
+/*
+ * No site-wide nav links in the header.
+ *
+ * The home page lists its own sections in `SectionNav`, and the projects list is
+ * one click from there; a second copy of those two links in the header only
+ * duplicated them and competed for width on narrow screens. The brand — the
+ * monogram plus the name — remains the way back to the home page, so no page is
+ * left without a route out.
+ */
 ---
 
 <!doctype html>
@@ -87,20 +92,15 @@ const nav: { key: UIKey; href: string }[] = [
         <a class="site-header__brand" href={localizePath('/', lang)}>
           <Logo size="sm" />
           <span class="site-header__name">{t(lang, 'home.name')}</span>
+          {/*
+            The link needs a name that survives at every width. The monogram is
+            decorative (`aria-hidden`) and the wordmark is hidden below 34rem, so
+            without this the brand would be an unlabelled link on a phone — and
+            since the header's nav links were removed, it is the only way back to
+            the home page. Visually hidden, so it costs no layout.
+          */}
+          <span class="sr-only">{t(lang, 'nav.homeLabel')}</span>
         </a>
-        <nav class="site-nav" aria-label="Main">
-          <ul class="site-nav__list">
-            {
-              nav.map((item) => (
-                <li>
-                  <a class="site-nav__link" href={item.href}>
-                    {t(lang, item.key)}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </nav>
         <div class="site-header__actions">
           <LangSwitcher />
           <ThemeToggle
@@ -165,11 +165,11 @@ const nav: { key: UIKey; href: string }[] = [
   }
 
   /*
-   * Narrow screens: logo, nav, language switcher and theme toggle together
-   * exceed a phone's width. The wordmark is the one part that carries no
-   * information the monogram and the page itself do not already give, so it is
-   * the part that goes — dropping it keeps every interactive control and its
-   * touch target intact rather than shrinking something tappable.
+   * Narrow screens: brand, language switcher and theme toggle together exceed a
+   * phone's width. The wordmark is the one part that carries no information the
+   * monogram and the page itself do not already give, so it is the part that
+   * goes — dropping it keeps every interactive control and its touch target
+   * intact rather than shrinking something tappable.
    */
   @media (max-width: 34rem) {
     .site-header__inner {
@@ -181,31 +181,15 @@ const nav: { key: UIKey; href: string }[] = [
     }
   }
 
-  .site-nav {
-    margin-inline-end: auto;
-  }
-
-  .site-nav__list {
-    display: flex;
-    gap: var(--space-4);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .site-nav__link {
-    font-size: var(--text-sm);
-    color: var(--fg-muted);
-    text-decoration: none;
-  }
-
-  .site-nav__link:hover {
-    color: var(--fg);
-  }
-
+  /*
+   * `margin-inline-end: auto` pushes the actions to the far edge, leaving the
+   * brand on the left. This used to sit on the removed `.site-nav`, which was
+   * the element between the two.
+   */
   .site-header__actions {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    margin-inline-start: auto;
   }
 </style>

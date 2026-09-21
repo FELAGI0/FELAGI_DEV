@@ -110,7 +110,10 @@ const projectsHref = `/${lang}/projects/`;
       }
 
       <p class="section-more">
-        <a href={projectsHref}>{t(lang, 'home.selected.all')} →</a>
+        <a class="section-more__link" href={projectsHref}>
+          <span class="section-more__label">{t(lang, 'home.selected.all')}</span>
+          <span class="section-more__arrow" aria-hidden="true">→</span>
+        </a>
       </p>
     </div>
   </section>
@@ -367,7 +370,7 @@ const projectsHref = `/${lang}/projects/`;
   @media (min-width: 64rem) {
     .section-grid {
       display: grid;
-      grid-template-columns: 12.5rem 1fr; /* 200px | content */
+      grid-template-columns: 13.75rem 1fr; /* 220px | content */
       gap: var(--space-12);
       align-items: start;
     }
@@ -439,9 +442,60 @@ const projectsHref = `/${lang}/projects/`;
     list-style: none;
   }
 
+  /*
+   * "All projects →" spans the section's content width with the arrow pushed to
+   * the far edge — a full-width affordance rather than a small inline link that
+   * is easy to miss at the end of a row of cards.
+   *
+   * The arrow is a separate element from the label precisely so it can be sent
+   * to the opposite edge; as part of the link text it would always sit directly
+   * after the words.
+   */
   .section-more {
-    margin-top: var(--space-6);
-    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .section-more__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block: var(--space-4); /* 16px */
+    font-size: var(--text-base); /* 16px */
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /*
+   * Underline appears on hover rather than being always on: the link already
+   * reads as interactive by spanning the row and carrying the accent colour, so
+   * a permanent underline would only add noise.
+   */
+  .section-more__link:hover .section-more__label {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /*
+   * The arrow nudges right on hover. `transform` rather than a margin change so
+   * it cannot reflow the row, and it is a pointer reaction, not an animation.
+   */
+  .section-more__arrow {
+    transition: transform var(--transition);
+  }
+
+  .section-more__link:hover .section-more__arrow {
+    transform: translateX(4px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .section-more__arrow {
+      transition: none;
+    }
+
+    .section-more__link:hover .section-more__arrow {
+      transform: none;
+    }
   }
 
   .principles {

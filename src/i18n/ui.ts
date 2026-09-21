@@ -12,6 +12,7 @@
 
 const en = {
   'nav.home': 'About',
+  'nav.homeLabel': 'Home',
   'nav.projects': 'Projects',
   'nav.sectionsLabel': 'Page sections',
   'lang.switchLabel': 'Switch language',
@@ -74,6 +75,7 @@ export type UIKey = keyof typeof en;
 
 const ru: Record<UIKey, string> = {
   'nav.home': 'Обо мне',
+  'nav.homeLabel': 'На главную',
   'nav.projects': 'Проекты',
   'nav.sectionsLabel': 'Разделы страницы',
   'lang.switchLabel': 'Переключить язык',

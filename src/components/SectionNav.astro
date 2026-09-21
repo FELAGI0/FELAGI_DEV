@@ -194,46 +194,67 @@ const { lang, items } = Astro.props;
   }
 
   .section-nav__item + .section-nav__item {
-    margin-top: var(--space-2);
-  }
-
-  .section-nav__link {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-1) 0;
-    font-family: var(--font-mono);
-    font-size: var(--text-chip);
-    color: var(--fg-subtle);
-    text-decoration: none;
+    margin-top: var(--space-1);
   }
 
   /*
-   * Active state is carried by colour *and* weight, not colour alone: a
-   * colour-only cue is easy to miss, and for anyone who cannot distinguish the
-   * accent from the muted grey it would be no cue at all.
+   * The active indicator is a 2px accent bar in the left padding.
+   *
+   * `border-left` on every item — transparent when inactive — rather than a
+   * `::before` that appears only on the active one: reserving the space is what
+   * keeps the labels from shifting sideways as the active item changes during
+   * scroll.
+   */
+  .section-nav__link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) 0 var(--space-2) 0.75rem; /* 12px */
+    border-left: 2px solid transparent;
+    font-size: 0.9375rem; /* 15px */
+    color: var(--fg-subtle);
+    text-decoration: none;
+    transition:
+      color var(--transition),
+      border-color var(--transition);
+  }
+
+  .section-nav__index {
+    /* Fixed width so labels align regardless of the numbers' digits. */
+    min-width: 1.5em;
+    font-family: var(--font-mono);
+    font-size: var(--text-chip); /* 13px */
+    color: var(--accent);
+    opacity: 0.55;
+  }
+
+  .section-nav__label {
+    /* Fits the longest label ("Разделы страницы" / "Infrastructure"). */
+    max-width: 12ch;
+  }
+
+  /*
+   * Active state is carried by colour, weight *and* the bar — three cues rather
+   * than a colour alone, which would be no cue at all for anyone who cannot
+   * distinguish the accent from the muted grey.
    */
   .section-nav__link.is-active {
+    border-left-color: var(--accent);
     color: var(--accent);
     font-weight: 500;
   }
 
-  .section-nav__link:hover {
+  .section-nav__link.is-active .section-nav__index {
+    opacity: 1;
+  }
+
+  /* Hover brightens the inactive items only part-way, so the pointer does not
+     read as "selected" before the click. */
+  .section-nav__link:not(.is-active):hover {
     color: var(--fg-muted);
   }
 
-  .section-nav__link.is-active:hover {
-    color: var(--accent);
-  }
-
-  .section-nav__index {
-    /* Fixed width so the labels line up regardless of the number's digits. */
-    min-width: 1.5em;
-    color: inherit;
-    opacity: 0.6;
-  }
-
-  .section-nav__label {
-    /* Fits "Разделы страницы" / "Infrastructure" without wrapping. */
-    max-width: 12ch;
+  .section-nav__link:not(.is-active):hover .section-nav__index {
+    opacity: 0.85;
   }
 </style>
