@@ -1,8 +1,14 @@
 // @ts-check
+import mdx from '@astrojs/mdx';
 import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
+  // `.mdx` is the authoring format for project pages: MDX keeps frontmatter
+  // (validated by the collection schema) while allowing components in the body
+  // later on.
+  integrations: [mdx()],
+
   // `dev`/`preview` run locally on a fixed port so the URL is predictable.
   server: {
     port: 4321,

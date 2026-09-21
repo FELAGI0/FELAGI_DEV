@@ -158,6 +158,11 @@ Zod-схема:
   date:      string
   featured:  boolean
 
+  Про date: YAML-парсер может вернуть Date (если дата без кавычек)
+  или string (если в кавычках). Схема нормализует обе формы к ISO
+  YYYY-MM-DD через isoDate. Проверено на TZ +03:00 и UTC —
+  дата не съезжает.
+
 ### FELAGI CRM
   title:     FELAGI CRM
   summary:   Production-minded CRM на FastAPI + React. RBAC,

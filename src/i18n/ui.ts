@@ -16,10 +16,14 @@ const en = {
   'home.eyebrow': 'Portfolio',
   'home.title': 'Developer portfolio',
   'home.intro':
-    'Static, no-nonsense portfolio: what I build, what I build it with, and how to reach me. Localization and the theme switch already work — projects arrive next.',
+    'Static, no-nonsense portfolio: what I build, what I build it with, and how to reach me. Localization and the theme switch work; projects below.',
   'projects.title': 'Projects',
   'projects.intro':
-    'The project list is being assembled. Each project will get its own page with the stack, links and write-up.',
+    'Things I have built and shipped, newest first. Each one links to its source and, where there is one, a live demo.',
+  'projects.empty': 'No projects yet.',
+  'projects.stackLabel': 'Stack',
+  'projects.repo': 'Source',
+  'projects.demo': 'Demo',
   'footer.note': 'Built with Astro. Static, no trackers.',
   'redirect.title': 'Redirecting',
   'redirect.manual': 'Choose a language:',
@@ -38,10 +42,14 @@ const ru: Record<UIKey, string> = {
   'home.eyebrow': 'Портфолио',
   'home.title': 'Портфолио разработчика',
   'home.intro':
-    'Статичное портфолио без лишнего: что делаю, на чём делаю и как со мной связаться. Локализация и переключение темы уже работают — проекты на подходе.',
+    'Статичное портфолио без лишнего: что делаю, на чём делаю и как связаться. Локализация и тема уже работают — проекты ниже.',
   'projects.title': 'Проекты',
   'projects.intro':
-    'Список проектов в работе. У каждого будет своя страница: стек, ссылки и описание.',
+    'То, что я сделал и довёл до рабочего состояния, от новых к старым. У каждого — исходники и, где есть, живое демо.',
+  'projects.empty': 'Проектов пока нет.',
+  'projects.stackLabel': 'Стек',
+  'projects.repo': 'Исходники',
+  'projects.demo': 'Демо',
   'footer.note': 'Собрано на Astro. Статика, без трекеров.',
   'redirect.title': 'Перенаправление',
   'redirect.manual': 'Выберите язык:',

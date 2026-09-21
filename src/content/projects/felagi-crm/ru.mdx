@@ -1,0 +1,38 @@
+---
+title: FELAGI CRM
+summary: Production-minded CRM на FastAPI + React. RBAC, async SQLAlchemy, 335 тестов, drag-and-drop kanban.
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - SQLAlchemy 2.0
+  - React
+  - TypeScript
+  - Docker
+repo: https://github.com/FELAGI0/FELAGI-CRM
+demo: https://felagi-crm.vercel.app
+demoNote: backend cold start ~30s (Render free tier)
+date: 2026-09-15
+featured: true
+---
+
+CRM-система для управления клиентами и сделками: роли и права доступа,
+воронка продаж с канбан-доской, история активности и аналитика.
+
+## Что внутри
+
+- **RBAC** — роли и granular-права на уровне эндпоинтов, а не только UI.
+- **Async SQLAlchemy 2.0** — полностью асинхронный доступ к данным,
+  миграции через Alembic.
+- **335 тестов** — API, бизнес-логика и права доступа покрыты pytest.
+
+## Стек
+
+FastAPI на бэкенде, React + TypeScript на фронтенде, PostgreSQL как основное
+хранилище. Всё упаковано в Docker.
+
+## Демо
+
+Фронтенд на Vercel, бэкенд на Render free tier — первый запрос после простоя
+может занять около 30 секунд, пока инстанс поднимается. Это ограничение
+бесплатного тарифа, а не проблема приложения.
