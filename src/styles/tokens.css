@@ -98,32 +98,24 @@
   --radius-full: 999px;
 
   /*
-   * Container — up to 1680px.
+   * Container — 1440px content width, 24px side padding.
    *
-   * Measured at 2560px: a 1360px container left 600px of empty screen on each
-   * side, so more than half the viewport was margin and the layout read as a
-   * narrow ribbon in the middle of a large display. 1680px is the widest that
-   * still leaves a deliberate margin at 1920 (120px per side) while giving the
-   * multi-column compositions room to actually use the width.
+   * A CP4c5 pass widened this to 1680px and added stepped gutters from 1440px
+   * up; both are rolled back here. At 1680 the multi-column arrangements it
+   * enabled (two-column prose, 2×2 principles, stretched skill cards) turned out
+   * to read as loose rather than generous, so the width returns to a middle
+   * point: 1440px is wider than the original 1360px without being wide enough to
+   * strand content inside it.
    *
-   * The outer margin comes from `--gutter`, which widens at 1440px and up (see
-   * below) rather than from shrinking this cap. Expressing it as padding keeps
-   * the phone layout intact: a `min(1680px, 100% - 4rem)` cap would have taken
-   * 32px off each side at 360px as well, leaving 248px of usable width on the
-   * smallest screens — losing room exactly where it is scarcest.
-   *
-   * This is safe for readability because body copy does not inherit it: prose is
-   * capped by `--measure` and the two-column sections give each column its own
-   * comfortable line length instead of one very long line.
+   * Margins at a given viewport: 1440 → 0, 1920 → 240px, 2560 → 560px each side.
    */
-  --container: 105rem; /* 1680px */
+  --container: 90rem; /* 1440px */
   --gutter: var(--space-6); /* 24px */
 
   /*
    * Maximum line length for running prose, in `ch` so it tracks the font rather
-   * than a pixel guess. 68ch sits inside the 60–75ch range that is comfortable
-   * to read; without it a paragraph would stretch to the full container width
-   * and the eye would lose its place returning to the next line.
+   * than a pixel guess. Kept from CP4c5: About is back to a single column, so
+   * this is what stops its paragraphs from stretching across the full container.
    */
   --measure: 68ch;
 

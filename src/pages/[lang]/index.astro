@@ -138,7 +138,7 @@ const projectsHref = `/${lang}/projects/`;
           <h2 class="section__title split__title" id="about-title">
             {t(lang, 'nav.home')}
           </h2>
-          <div class="split__body split__body--columns">
+          <div class="split__body">
             <p class="lead">{t(lang, 'about.p1')}</p>
             <p class="lead">{t(lang, 'about.p2')}</p>
           </div>
@@ -363,12 +363,11 @@ const projectsHref = `/${lang}/projects/`;
   /*
    * Sticky navigator beside the four lower sections.
    *
-   * The column is 170px and the gap 24px, not the 220px + 48px it was: measured,
-   * the nav's own text ended ~160px before the content column began, so the two
-   * read as unrelated blocks rather than one composition. The labels are short
-   * ("Принципы", "Контакты"), so 170px holds the longest of them plus the number
-   * and the active bar with room to spare. The reclaimed width goes to the
-   * content, which is what the Skills row and the prose actually need.
+   * The column is 220px and the gap 48px. A CP4c5 pass narrowed these to 170px
+   * and 24px to close the visual gap between the nav text and the content; that
+   * is reverted because the tighter gap made the navigator read as part of the
+   * content column rather than as its own margin note beside it. The wider
+   * spacing is the calmer of the two.
    *
    * Below 1024px this is a single column and `SectionNav` hides itself, so the
    * markup order — nav first — stays the same at every width instead of being
@@ -377,8 +376,8 @@ const projectsHref = `/${lang}/projects/`;
   @media (min-width: 64rem) {
     .section-grid {
       display: grid;
-      grid-template-columns: 10.625rem 1fr; /* 170px | content */
-      gap: var(--space-6); /* 24px */
+      grid-template-columns: 13.75rem 1fr; /* 220px | content */
+      gap: var(--space-12); /* 48px */
       align-items: start;
     }
   }
@@ -428,43 +427,22 @@ const projectsHref = `/${lang}/projects/`;
     }
   }
 
-  /*
-   * About: the two paragraphs sit side by side on very wide screens.
-   *
-   * Stacked, they formed one 1044px-wide column of text whose lines were far
-   * longer than the readable measure, while the section still looked half empty
-   * vertically. Two columns solve both at once — each paragraph keeps a
-   * comfortable line length and the block fills the width it was given.
-   *
-   * Only from 1440px, where there is genuinely room for two text columns beside
-   * the navigator. Below that the paragraphs stack, as before.
-   */
-  @media (min-width: 90rem) {
-    .split__body--columns {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--space-8) var(--space-12);
-      align-items: start;
-    }
-  }
-
   .split__body > :last-child {
     margin-bottom: 0;
   }
 
   /*
-   * Skills: three cards of *different* widths, sharing one row.
+   * Skills: three cards, each only as wide as its own content needs.
    *
    * A fixed three-column grid would stretch "Frontend" (2 items) to the same
    * width as "Backend" (6 items) and produce the uniform tiles the brief rules
-   * out. Flex with content-sized items lets each card be as wide as it is dense.
+   * out. `flex` with content-sized items lets each card be as wide as it is
+   * dense, and the row simply ends where the content does.
    *
-   * From 1024px — where the navigator appears and the content column narrows —
-   * the row stops wrapping and the cards shrink or grow to share it. Wrapping
-   * was the previous behaviour and it read as unfinished: at 1024 the third card
-   * dropped to a line of its own with 427px of empty space beside it, which is
-   * the "not finished" look rather than a layout decision. One row means the
-   * proportions differ but the block always ends where the column does.
+   * CP4c5 made the cards grow to fill the row; that is reverted. Stretching them
+   * flattened the density difference the cards exist to show — a three-item
+   * group ended up nearly as wide as a six-item one — so the widths are content
+   * driven again and the row is allowed to end early.
    */
   .skills {
     display: flex;
@@ -475,6 +453,15 @@ const projectsHref = `/${lang}/projects/`;
     list-style: none;
   }
 
+  /*
+   * From 1024px the three cards stay on one row.
+   *
+   * `nowrap` with the cards' default `flex-shrink: 1` means they tighten to fit
+   * the column when it is narrow, but never grow: at 1440px their natural widths
+   * already fit, so they keep the density they were sized for. Growing them (the
+   * CP4c5 behaviour) is what flattened the difference between a two-item and a
+   * six-item group.
+   */
   @media (min-width: 64rem) {
     .skills {
       flex-wrap: nowrap;
@@ -543,22 +530,6 @@ const projectsHref = `/${lang}/projects/`;
     list-style: none;
   }
 
-  /*
-   * Principles: 2×2 on very wide screens.
-   *
-   * Four short phrases stacked in a 1300px-wide column left most of the width
-   * unused and made the section read as a thin ribbon. Two columns suit the
-   * content — the phrases are one line each — and the block gains a compact,
-   * deliberate shape instead of four stranded lines.
-   */
-  @media (min-width: 90rem) {
-    .principles {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 0 var(--space-12);
-    }
-  }
-
   .contacts {
     display: flex;
     flex-wrap: wrap;
@@ -571,14 +542,12 @@ const projectsHref = `/${lang}/projects/`;
   /*
    * Contact links are bordered targets rather than bare text.
    *
-   * Measured, this was the emptiest section on the page (content filled 42% of
-   * its height) and its links were the smallest interactive text on the site at
-   * 14px. Giving each one a border, padding and 15px mono type adds the density
-   * the section was missing, makes three destinations read as three deliberate
-   * actions, and grows the touch target — which matters more here than anywhere
-   * else, since these are the links the page exists to deliver.
-   *
-   * Colour stays on the global `a` rule (accent), so the palette is unchanged.
+   * Kept from CP4c5 deliberately: the rollback covers About, Principles and
+   * Skills, and this section has the opposite problem — measured, it was the
+   * emptiest on the page (content filled 42% of its height) with the smallest
+   * interactive text at 14px. The border, padding and 15px mono type add density
+   * where it was missing and grow the touch target of the links the page exists
+   * to deliver. Colour stays on the global `a` rule, so the palette is unchanged.
    */
   .contacts__link {
     display: inline-block;

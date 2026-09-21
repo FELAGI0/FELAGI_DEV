@@ -37,13 +37,18 @@ const { lang, labelKey, items } = Astro.props;
 
 <style>
   /*
-   * Compact card. The parent `.skills` is a flex row, so a group with two items
-   * stays narrow and a group with six is wider — density follows the data
-   * instead of every tile being padded out to the same rectangle.
+   * Compact card, sized by its own content. The parent `.skills` is a flex row,
+   * so a group with two items stays narrow and a group with six is wider —
+   * density follows the data instead of every tile being padded out to the same
+   * rectangle.
    *
    * `min-width: 0` matters: without it a flex item refuses to shrink below its
    * min-content width, so a card whose contents are one long row of chips would
    * hold the row wider than the column and overflow it.
+   *
+   * No `flex-grow`: a CP4c5 pass let the cards expand to fill the row, which made
+   * a two-item group almost as wide as a six-item one and flattened the very
+   * difference these cards are meant to show. Growth is reverted.
    */
   .skill-card {
     flex: 0 1 auto;
@@ -53,19 +58,6 @@ const { lang, labelKey, items } = Astro.props;
     border-radius: var(--radius-lg);
   }
 
-  /*
-   * From 1024px the three cards share one row (see `.skills` in index.astro),
-   * so they also take an equal share of any leftover space. `flex-grow: 1` adds
-   * the same amount to each card's own width, which keeps their proportions —
-   * Backend stays widest, Frontend narrowest — while the row ends where the
-   * content column does rather than trailing off into empty space.
-   */
-  @media (min-width: 64rem) {
-    .skill-card {
-      flex-grow: 1;
-    }
-  }
-
   .skill-card__title {
     margin-bottom: var(--space-2);
     /*
@@ -73,6 +65,8 @@ const { lang, labelKey, items } = Astro.props;
      * letter-spacing, and at 12px it read as noticeably smaller than every other
      * piece of chrome on the page. 13px matches the chips it labels, so the card
      * has one text size instead of two near-identical ones.
+     *
+     * Kept from CP4c5 — the rollback targets width and density, not type size.
      */
     font-size: var(--text-chip);
     font-weight: 600;

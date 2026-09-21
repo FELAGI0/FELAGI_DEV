@@ -34,16 +34,8 @@ const label = String(index).padStart(2, '0');
     border-bottom: 1px solid var(--border);
   }
 
-  /*
-   * In the two-column arrangement the rules are drawn with a gap between
-   * columns, so a full-width bottom border on every item would run under the
-   * gutter and read as one continuous line across both columns. Each item keeps
-   * its own rule instead, and the last row drops it.
-   */
-  @media (min-width: 90rem) {
-    .principle:nth-last-child(-n + 2) {
-      border-bottom: 0;
-    }
+  .principle:last-child {
+    border-bottom: 0;
   }
 
   .principle__index {

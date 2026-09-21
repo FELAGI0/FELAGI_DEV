@@ -179,27 +179,12 @@ button {
 }
 
 /* Layout primitives.
-   1680px content width, 24px side padding, 64/96px section rhythm. */
+   1440px content width, 24px side padding, 64/96px section rhythm. */
 .container {
   width: 100%;
   max-width: var(--container);
   margin-inline: auto;
   padding-inline: var(--gutter);
-}
-
-/*
- * At 1440px and up the side gutters widen.
- *
- * Between 1408px (where the container stops filling the viewport) and the point
- * where the 1680px cap takes over, the content would otherwise sit only 24px
- * from the screen edge — visually cramped on a large display, and inconsistent
- * with the generous margin the same layout shows at 1920px. Growing the gutter
- * makes the transition smooth instead of the margin jumping from 24px to 120px.
- */
-@media (min-width: 90rem) {
-  .container {
-    padding-inline: var(--space-8); /* 32px */
-  }
 }
 
 /*
