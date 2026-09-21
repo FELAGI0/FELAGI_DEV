@@ -1,6 +1,6 @@
 // @ts-check
 import mdx from '@astrojs/mdx';
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
@@ -8,6 +8,43 @@ export default defineConfig({
   // (validated by the collection schema) while allowing components in the body
   // later on.
   integrations: [mdx()],
+
+  /*
+   * Self-hosted fonts, served from our own origin.
+   *
+   * Astro's Fonts API downloads the files at build time and emits `@font-face`
+   * plus the preload links, so the site makes no third-party request at runtime
+   * (no `fonts.googleapis.com`, no data leaving the visitor's browser). It also
+   * generates size-adjusted local fallbacks, which keeps the text from shifting
+   * when the real font swaps in.
+   *
+   * Only the weights actually used are requested — each extra weight is another
+   * file for every visitor to download. `cyrillic` is required, not optional:
+   * the Russian pages would otherwise fall back mid-sentence and render two
+   * different typefaces in one paragraph.
+   */
+  fonts: [
+    {
+      provider: fontProviders.fontsource(),
+      name: 'Inter',
+      cssVariable: '--font-inter',
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin', 'cyrillic'],
+      fallbacks: ['system-ui', '-apple-system', 'sans-serif'],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: 'JetBrains Mono',
+      cssVariable: '--font-jetbrains-mono',
+      weights: [400, 500, 700],
+      styles: ['normal'],
+      // Cyrillic included for the same reason as Inter: the monospace face is
+      // used for Russian-facing text too (dates, project meta).
+      subsets: ['latin', 'cyrillic'],
+      fallbacks: ['ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
+    },
+  ],
 
   // `dev`/`preview` run locally on a fixed port so the URL is predictable.
   server: {

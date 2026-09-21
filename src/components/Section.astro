@@ -35,7 +35,14 @@ const headingId = `${id}-title`;
 
 <style>
   .section {
-    padding-block: var(--space-12);
+    padding-block: var(--space-20);
+  }
+
+  /* Brief §4: 80px on mobile, 120px from 768px up. */
+  @media (min-width: 48rem) {
+    .section {
+      padding-block: var(--space-30);
+    }
   }
 
   .section + .section {
@@ -44,6 +51,6 @@ const headingId = `${id}-title`;
 
   .section__title {
     margin-bottom: var(--space-6);
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
   }
 </style>

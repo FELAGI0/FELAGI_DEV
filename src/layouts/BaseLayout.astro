@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import Footer from '@/components/Footer.astro';
 import LangSwitcher from '@/components/LangSwitcher.astro';
 import Logo from '@/components/Logo.astro';
@@ -47,6 +48,25 @@ const nav: { key: UIKey; href: string }[] = [
     <meta name="generator" content={Astro.generator} />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+
+    <!--
+      Fonts are self-hosted (see the `fonts` block in astro.config.mjs) and
+      emitted here, in <head>, before any content is painted.
+
+      Only three files are preloaded — Inter 400 and 600, and JetBrains Mono 500.
+      These are the faces above the fold on every page: body copy and headings in
+      the first case, the wordmark/monogram and stack chips in the second.
+      Preloading the bold and 700 weights would compete with the CSS and images
+      for bandwidth on first load, for text the visitor has not scrolled to yet.
+    -->
+    <Font
+      cssVariable="--font-inter"
+      preload={[{ weight: 400 }, { weight: 600 }]}
+    />
+    <Font
+      cssVariable="--font-jetbrains-mono"
+      preload={[{ weight: 500 }]}
+    />
     <ThemeScript />
   </head>
   <body>
@@ -54,7 +74,7 @@ const nav: { key: UIKey; href: string }[] = [
       <div class="container site-header__inner">
         <a class="site-header__brand" href={localizePath('/', lang)}>
           <Logo size="sm" />
-          <span class="site-header__name">{SITE_NAME}</span>
+          <span class="site-header__name">{t(lang, 'home.name')}</span>
         </a>
         <nav class="site-nav" aria-label="Main">
           <ul class="site-nav__list">
@@ -118,10 +138,11 @@ const nav: { key: UIKey; href: string }[] = [
   }
 
   .site-header__name {
-    /* The wordmark reads as a technical mark, matching the monogram. */
-    font-family: var(--font-mono);
-    font-size: var(--text-sm);
-    letter-spacing: 0.02em;
+    /* Brief §5a: the owner's name in Inter 500, not the ASCII product name. */
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    font-weight: 500;
+    letter-spacing: normal;
     white-space: nowrap;
   }
 

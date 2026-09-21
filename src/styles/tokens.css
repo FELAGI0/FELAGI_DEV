@@ -1,65 +1,105 @@
-/* Design tokens.
-   Dark is the default theme (defined on :root).
-   Light overrides only the color layer. */
+/* Design tokens — brief §2 (palette), §3 (type), §4 (grid).
+ *
+ * Dark is the default theme (on `:root`); light overrides only the color layer.
+ *
+ * Token names are kept from CP0 (`--bg-subtle`, `--bg-raised`) rather than
+ * renamed to the brief's `--surface`: the names are already referenced across
+ * every component, and a rename is churn without a visual result. The mapping
+ * is one-to-one — `--bg-subtle` *is* the brief's `--surface`.
+ *
+ * Every text token below clears WCAG AA (4.5:1) for normal text against every
+ * surface it can sit on. Values were solved numerically, not eyeballed; see the
+ * notes on the two tokens that depart from the brief's literal hex.
+ */
 
 :root {
   color-scheme: dark;
 
-  /* Neutral scale — dark base */
-  --bg: #0e1116;
-  --bg-subtle: #151a21;
-  --bg-raised: #1b222b;
-  --border: #262d38;
-  --border-strong: #38424f;
+  /* Surfaces — brief §2, plus a raised tier the brief does not specify. */
+  --bg: #0a0a0a;
+  --bg-subtle: #141414; /* = brief's --surface */
+  --bg-raised: #1c1c1c; /* derived: one step above --surface */
 
-  --fg: #e6eaf0;
-  --fg-muted: #9aa5b4;
-  --fg-subtle: #6b7683;
+  /* Borders — brief §2. No shadows anywhere (brief §4). */
+  --border: #262626;
+  --border-strong: #3a3a3a;
 
-  /* Single accent */
+  /*
+   * Text. `--fg` and `--fg-muted` are the brief's values verbatim.
+   *
+   * `--fg-subtle` is a third, de-emphasised tier the brief does not define but
+   * which the project already uses (card dates, footer copy, demo notes, the
+   * hero handle). It is set to the *dimmest* neutral that still clears AA on
+   * the raised surface — the constraint, not a preference. AA leaves very
+   * little room below `--fg-muted` on a dark theme, so this tier is narrow by
+   * necessity; collapsing it into `--fg-muted` is the alternative.
+   */
+  --fg: #e5e5e5;
+  --fg-muted: #8a8a8a;
+  --fg-subtle: #848484;
+
+  /* Single accent — brief §2. Passes AA as link text on every surface. */
   --accent: #5b9dff;
-  --accent-hover: #7bb0ff;
-  --accent-contrast: #0b1220;
+  --accent-hover: #7fb4ff;
+  --accent-contrast: #0a0a0a;
   --accent-soft: rgb(91 157 255 / 0.12);
 
-  /* Feedback */
   --focus-ring: var(--accent);
 
-  /* Typography */
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+  /*
+   * Typography — brief §3.
+   *
+   * `--font-sans` / `--font-mono` are fed by Astro's Fonts API, which emits the
+   * `@font-face` rules and defines these two variables in the page head (see
+   * the `fonts` block in astro.config.mjs and `<Font />` in BaseLayout). The
+   * literal family names here are the last-resort fallbacks, used only if that
+   * generated CSS has not arrived yet; each font's own configured `fallbacks`
+   * are size-adjusted locally by Astro to avoid layout shift on swap.
+   */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular,
+    Consolas, monospace;
 
+  /* Brief §3 sizes. */
+  --text-chip: 0.8125rem; /* 13px — chips */
+  --text-muted: 0.9375rem; /* 15px — muted body copy */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
-  --text-base: 1rem;
+  --text-base: 1rem; /* body */
   --text-lg: 1.125rem;
-  --text-xl: 1.375rem;
-  --text-2xl: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
-  --text-3xl: clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem);
+  --text-xl: 1.25rem; /* h3 — card titles */
+  --text-2xl: clamp(1.75rem, 4vw, 2.5rem); /* h2 — sections */
+  --text-3xl: clamp(2.5rem, 8vw, 5rem); /* h1 — hero */
 
+  --leading-hero: 1.05; /* brief §3: hero h1 */
+  --leading-heading: 1.15; /* brief §3: section h2 */
+  --leading-normal: 1.6; /* brief §3: body */
   --leading-tight: 1.2;
-  --leading-normal: 1.6;
-  --tracking-tight: -0.02em;
 
-  /* Space + shape */
+  --tracking-tight: -0.02em; /* brief §3: hero h1 */
+  --tracking-wide: 0.02em; /* brief §3: hero handle */
+
+  /* Space. Named numbers are multiples of the 4px base. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-6: 1.5rem;
+  --space-6: 1.5rem; /* 24px — card gap and container padding (brief §4) */
   --space-8: 2rem;
   --space-12: 3rem;
   --space-16: 4rem;
+  --space-20: 5rem; /* 80px — section rhythm, mobile (brief §4) */
+  --space-30: 7.5rem; /* 120px — section rhythm, desktop (brief §4) */
 
+  /* Shape — brief §4: 12px cards, 999px chips, no shadows. */
   --radius-sm: 4px;
   --radius: 8px;
-  --radius-lg: 14px;
+  --radius-lg: 12px;
   --radius-full: 999px;
 
-  --container: 68rem;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.25);
+  /* Container — brief §4: 1200px content width, 24px side padding. */
+  --container: 75rem;
+  --gutter: var(--space-6);
 
   --transition: 150ms ease;
 }
@@ -68,19 +108,25 @@
   color-scheme: light;
 
   --bg: #ffffff;
-  --bg-subtle: #f6f7f9;
+  --bg-subtle: #f5f5f5; /* = brief's --surface */
   --bg-raised: #ffffff;
-  --border: #e3e6ea;
-  --border-strong: #c7ccd3;
 
-  --fg: #14181d;
-  --fg-muted: #55606d;
-  --fg-subtle: #7a8592;
+  --border: #e5e5e5;
+  --border-strong: #c9c9c9;
 
-  --accent: #1f6feb;
+  --fg: #0a0a0a;
+  --fg-muted: #5a5a5a;
+  /* Lightest neutral clearing AA on --surface: de-emphasis, still readable. */
+  --fg-subtle: #707070;
+
+  /*
+   * The brief's light accent is `#1f6feb`, which measures 4.25:1 as link text
+   * on `--surface` — just under AA. Darkened minimally along the same hue to
+   * `#1565e1` (4.84:1). The brief's value would otherwise be the only colour
+   * on the site that fails contrast in the light theme.
+   */
+  --accent: #1565e1;
   --accent-hover: #1a5fd0;
   --accent-contrast: #ffffff;
-  --accent-soft: rgb(31 111 235 / 0.1);
-
-  --shadow: 0 1px 2px rgb(16 24 40 / 0.06), 0 8px 24px rgb(16 24 40 / 0.08);
+  --accent-soft: rgb(21 101 225 / 0.1);
 }

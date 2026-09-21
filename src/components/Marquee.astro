@@ -42,13 +42,13 @@ const copies = Array.from({ length: COPIES });
 <style define:vars={{ shift: `-${SHIFT_PERCENT}%` }}>
   .marquee {
     overflow: hidden;
-    /* Fade the edges so items do not pop in and out at the boundary. */
+    /* Fade the edges so items do not pop in and out at the boundary (brief §5b). */
     mask-image: linear-gradient(
       to right,
-      transparent,
-      black 8%,
-      black 92%,
-      transparent
+      transparent 0,
+      black 10%,
+      black 90%,
+      transparent 100%
     );
     user-select: none;
   }
@@ -77,7 +77,7 @@ const copies = Array.from({ length: COPIES });
   .marquee__item {
     position: relative;
     font-family: var(--font-mono);
-    font-size: var(--text-xs);
+    font-size: var(--text-chip);
     letter-spacing: 0.06em;
     color: var(--fg-muted);
     white-space: nowrap;

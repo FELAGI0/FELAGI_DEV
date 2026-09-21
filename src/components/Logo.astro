@@ -62,9 +62,18 @@ const letterSize = Math.round(px * 0.55);
   }
 
   .logo__letter {
-    /* JetBrains Mono arrives with the typography pass; until then the generic
-       monospace fallback keeps the letter's proportions close. */
-    font-family: 'JetBrains Mono', var(--font-mono);
+    /*
+     * Only the variable, no literal family name.
+     *
+     * Astro's Fonts API registers each family under a *hashed* name
+     * (`JetBrains Mono-f7b85374b7aa8895`) to keep it from colliding with a
+     * locally installed font of the same name, and exposes it through
+     * `--font-jetbrains-mono` together with its size-adjusted fallbacks.
+     * Spelling `'JetBrains Mono'` first — as this rule used to — never matches
+     * anything, so the browser silently skipped to the next entry; it also
+     * duplicated the fallback chain that the variable already carries.
+     */
+    font-family: var(--font-mono);
     font-weight: 700;
   }
 </style>

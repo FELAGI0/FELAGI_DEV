@@ -140,7 +140,14 @@ const projectsHref = `/${lang}/projects/`;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-8);
-    padding-block: var(--space-12);
+    /* Brief §4: hero uses the section rhythm — 80px mobile, 120px desktop. */
+    padding-block: var(--space-20);
+  }
+
+  @media (min-width: 48rem) {
+    .hero {
+      padding-block: var(--space-30);
+    }
   }
 
   .hero__name {
@@ -152,19 +159,30 @@ const projectsHref = `/${lang}/projects/`;
     color: var(--accent);
   }
 
+  /* Brief §3: the handle is JetBrains Mono 0.9375rem, tracking 0.02em. */
   .hero__handle {
+    font-family: var(--font-mono);
+    font-size: var(--text-muted);
+    font-weight: 400;
+    letter-spacing: var(--tracking-wide);
     color: var(--fg-subtle);
     text-transform: none;
   }
 
+  /*
+   * No `font-size` here: the hero heading is an `h1`, and brief §3 sizes it via
+   * the global rule (clamp 2.5rem → 5rem, 1.05 leading). An earlier checkpoint
+   * pinned it to `--text-2xl`, which silently made the page's main heading the
+   * same size as a section heading and defeated the hero scale.
+   */
   .hero__role {
-    font-size: var(--text-2xl);
+    letter-spacing: var(--tracking-tight);
   }
 
   .hero__stack {
     margin-bottom: var(--space-4);
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    font-size: var(--text-chip);
     color: var(--fg-muted);
   }
 
