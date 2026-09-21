@@ -13,6 +13,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "check:lf": "node scripts/check-final-newline.mjs",
+    "hooks:install": "git config core.hooksPath scripts/git-hooks",
     "test": "vitest run",
     "test:watch": "vitest",
     "astro": "astro"
