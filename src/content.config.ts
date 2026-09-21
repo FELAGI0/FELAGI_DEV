@@ -69,7 +69,7 @@ const projects = defineCollection({
      * A single optional field rather than an array: the card has room to
      * emphasise exactly one figure, and a list would invite filling it with
      * three, which would flatten the emphasis the field exists to create.
-     * `value` is the figure itself ("335"), `label` says what it counts
+     * `value` is the figure itself ("16"), `label` says what it counts
      * ("tests") — kept apart so the number can be set in a larger type than the
      * word next to it without splitting the string at render time.
      */
