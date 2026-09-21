@@ -62,3 +62,25 @@ export const SKILL_GROUPS = [
     items: ['Docker', 'Git / GitHub', 'Pytest', 'REST API'],
   },
 ] as const;
+
+/**
+ * The decorative terminal shown in the hero (brief §6).
+ *
+ * Data rather than markup so the component stays a pure renderer, and so the
+ * service list is edited in one obvious place. Kept out of `src/i18n/ui.ts` for
+ * the same reason as `STACK`: this is simulated shell output — command, service
+ * names, port numbers and status words are what a real `docker compose up`
+ * prints, and translating them would make the panel read as fake to anyone who
+ * has used a terminal. It is `aria-hidden` anyway, so it carries no information
+ * a screen reader needs.
+ */
+export const TERMINAL = {
+  command: 'docker compose up',
+  services: [
+    { name: 'postgres', status: 'ready' },
+    { name: 'backend', status: 'running :8000' },
+    { name: 'redis', status: 'ready' },
+  ],
+  /** The closing line, set apart from the service list. */
+  message: 'API listening on :8000',
+} as const;

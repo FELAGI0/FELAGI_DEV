@@ -22,7 +22,7 @@ const en = {
   'home.name': 'Artem',
   'home.role': 'Backend Developer',
   'home.tagline':
-    'I build backends for SaaS, CRM and Telegram bots: API, business logic, data.',
+    'I design APIs, automate processes and turn ideas into working services.',
   'home.heroLabel': 'Introduction',
 
   // Stack marquee
@@ -40,10 +40,10 @@ const en = {
 
   // Principles
   'principles.title': 'Principles',
-  'principles.1': 'Clear architecture',
-  'principles.2': 'Readable, typed code',
-  'principles.3': 'Tests and automation',
-  'principles.4': 'Docker and a documented API',
+  'principles.1': 'Architecture before speed',
+  'principles.2': 'Automation over repetitive work',
+  'principles.3': 'Code should still be understandable six months later',
+  'principles.4': 'Simple systems scale better',
 
   // Skills
   'skills.title': 'Skills',
@@ -83,7 +83,7 @@ const ru: Record<UIKey, string> = {
   'home.name': 'Артем',
   'home.role': 'Backend-разработчик',
   'home.tagline':
-    'Строю бэкенды для SaaS, CRM и Telegram-ботов: API, бизнес-логика, работа с данными.',
+    'Проектирую API, автоматизирую процессы и превращаю идеи в рабочие сервисы.',
   'home.heroLabel': 'Кто я',
 
   // Stack marquee
@@ -101,10 +101,10 @@ const ru: Record<UIKey, string> = {
 
   // Principles
   'principles.title': 'Принципы',
-  'principles.1': 'Понятная архитектура',
-  'principles.2': 'Читаемый и типизированный код',
-  'principles.3': 'Тесты и автоматизация',
-  'principles.4': 'Docker и документированный API',
+  'principles.1': 'Архитектура важнее скорости',
+  'principles.2': 'Автоматизация вместо рутины',
+  'principles.3': 'Код должен читаться через полгода',
+  'principles.4': 'Простые системы масштабируются лучше',
 
   // Skills
   'skills.title': 'Навыки',

@@ -1,0 +1,119 @@
+---
+/**
+ * Decorative terminal panel for the hero (brief §6).
+ *
+ * Replaces the large monogram that used to sit here. The monogram still serves
+ * its purpose in the header, where it works as a compact mark; at hero size it
+ * was only decoration, whereas simulated `docker compose up` output says
+ * something concrete about the kind of work this site is about.
+ *
+ * Data comes from `TERMINAL` in `src/consts.ts` — the component is a renderer,
+ * not a content file. Nothing here is animated: motion is CP4b.
+ *
+ * `aria-hidden` because the panel is decorative. It is a picture of a terminal,
+ * not a real one: there is nothing to interact with, and reading the lines aloud
+ * would add noise in front of the actual hero copy for anyone using a screen
+ * reader. The information it gestures at (Docker, FastAPI, PostgreSQL) is stated
+ * properly in the Skills section.
+ */
+import { TERMINAL } from '@/consts';
+---
+
+<div class="terminal" aria-hidden="true">
+  <p class="terminal__command">
+    <span class="terminal__prompt">$</span> {TERMINAL.command}
+  </p>
+  <ul class="terminal__services">
+    {
+      TERMINAL.services.map((service) => (
+        <li class="terminal__service">
+          <span class="terminal__check">✓</span>
+          <span class="terminal__name">{service.name}</span>
+          <span class="terminal__status">{service.status}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="terminal__message">{TERMINAL.message}</p>
+</div>
+
+<style>
+  .terminal {
+    /*
+     * Sits at the top of a dark surface on both themes. The panel is meant to
+     * read as a terminal, so it keeps a dark background in the light theme too —
+     * a white "terminal" would not look like one. Its own colours are therefore
+     * fixed rather than inherited from the theme tokens, except for the accents
+     * noted below.
+     */
+    width: 100%;
+    max-width: 26rem; /* 416px */
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background-color: #0a0a0a;
+    font-family: var(--font-mono);
+    font-size: var(--text-chip);
+    line-height: 1.7;
+  }
+
+  .terminal__command {
+    margin: 0 0 var(--space-3);
+    color: #e5e5e5;
+  }
+
+  /* The prompt is dimmer than the command it introduces, as in a real shell. */
+  .terminal__prompt {
+    color: #848484;
+  }
+
+  .terminal__services {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /*
+   * Three columns so the check marks, service names and statuses line up
+   * vertically. `max-content` on the first two means the columns take exactly
+   * the width their longest entry needs, which keeps "postgres"/"backend"/"redis"
+   * and their statuses aligned instead of ragging with each line's length.
+   */
+  .terminal__service {
+    display: grid;
+    grid-template-columns: max-content max-content 1fr;
+    gap: var(--space-3);
+    color: #b4b4b4;
+  }
+
+  /* Green reads as "ok" in a terminal and is the one colour used for state. */
+  .terminal__check {
+    color: #4ade80;
+  }
+
+  .terminal__name {
+    color: #e5e5e5;
+  }
+
+  .terminal__status {
+    color: #848484;
+  }
+
+  /* Separated from the service list: this line is the outcome, not a step. */
+  .terminal__message {
+    margin: var(--space-4) 0 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid #262626;
+    color: #e5e5e5;
+    font-style: italic;
+  }
+
+  /*
+   * Light theme: the panel stays dark, but its fixed greys need slightly more
+   * separation from the page's white background, and the border must be visible
+   * against white rather than blending into it.
+   */
+  :global([data-theme='light']) .terminal {
+    border-color: #c9c9c9;
+  }
+</style>

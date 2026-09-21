@@ -56,10 +56,20 @@ const { Content } = await render(entry);
     </ul>
 
     <p class="project-header__meta">
+      <span class="project-header__lang">{data.stack[0]}</span>
       <span class="project-header__date">{data.date}</span>
       <a href={data.repo}>{t(lang, 'projects.repo')}</a>
       {data.demo && <a href={data.demo}>{t(lang, 'projects.demo')}</a>}
     </p>
+
+    {
+      data.metric && (
+        <p class="project-header__metric">
+          <span class="project-header__metric-value">{data.metric.value}</span>
+          <span class="project-header__metric-label">{data.metric.label}</span>
+        </p>
+      )
+    }
 
     {data.demoNote && <p class="project-header__note">{data.demoNote}</p>}
   </header>
@@ -117,9 +127,35 @@ const { Content } = await render(entry);
     color: var(--accent);
   }
 
+  .project-header__lang {
+    font-family: var(--font-mono);
+    color: var(--fg-muted);
+  }
+
   .project-header__date {
     font-family: var(--font-mono);
     color: var(--fg-subtle);
+  }
+
+  /* Same headline figure as the card, so a project reads the same on both. */
+  .project-header__metric {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+  }
+
+  .project-header__metric-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--fg);
+  }
+
+  .project-header__metric-label {
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
   }
 
   .project-header__note {

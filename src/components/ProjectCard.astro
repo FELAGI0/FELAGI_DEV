@@ -45,7 +45,24 @@ const detailHref = `/${lang}/projects/${slug}/`;
     }
   </ul>
 
+  {
+    /*
+     * The project's headline figure, set larger than the chips above it. Only
+     * rendered when the frontmatter provides one, so a project without a
+     * meaningful number shows nothing rather than an empty block.
+     */
+  }
+  {
+    data.metric && (
+      <p class="project-card__metric">
+        <span class="project-card__metric-value">{data.metric.value}</span>
+        <span class="project-card__metric-label">{data.metric.label}</span>
+      </p>
+    )
+  }
+
   <p class="project-card__meta">
+    <span class="project-card__lang">{data.stack[0]}</span>
     <span class="project-card__date">{data.date}</span>
     <a href={data.repo}>{t(lang, 'projects.repo')}</a>
     {data.demo && <a href={data.demo}>{t(lang, 'projects.demo')}</a>}
@@ -59,6 +76,29 @@ const detailHref = `/${lang}/projects/${slug}/`;
     padding: var(--space-6);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
+    /*
+     * Pointer + lift on hover. This is a CSS transition, not an animation: it
+     * reacts to the pointer being over the card and is over in 150ms. Motion
+     * that runs on its own belongs to CP4b.
+     */
+    transition:
+      border-color var(--transition),
+      transform var(--transition);
+  }
+
+  .project-card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  /*
+   * Respect a reduced-motion preference: keep the border cue (it is not motion)
+   * and drop the movement.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .project-card:hover {
+      transform: none;
+    }
   }
 
   .project-card__title {
@@ -82,6 +122,31 @@ const detailHref = `/${lang}/projects/${slug}/`;
 
   /* `.stack` and `.stack__chip` come from global.css — shared with the detail page. */
 
+  /*
+   * The headline figure. Both parts sit on one baseline so the number reads as
+   * the primary element and the unit as its label, rather than as two pieces of
+   * text at the same weight.
+   */
+  .project-card__metric {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+  }
+
+  .project-card__metric-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--fg);
+  }
+
+  .project-card__metric-label {
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
   .project-card__meta {
     display: flex;
     flex-wrap: wrap;
@@ -92,14 +157,20 @@ const detailHref = `/${lang}/projects/${slug}/`;
   }
 
   /*
-   * Brief §5c: a muted "·" separator between the date and each link. Drawn with
+   * Brief §5c: a muted "·" separator between consecutive items. Drawn with
    * `::before` on siblings rather than as literal markup, so it appears exactly
-   * once between consecutive items — including when `demo` is absent, where a
+   * once between each pair — including when `demo` is absent, where a
    * hand-placed separator would either dangle or need a conditional.
    */
   .project-card__meta > * + *::before {
     content: '·';
     margin-inline-end: var(--space-3);
+    color: var(--fg-muted);
+  }
+
+  /* The primary language: the first entry of `stack`, a proper noun. */
+  .project-card__lang {
+    font-family: var(--font-mono);
     color: var(--fg-muted);
   }
 
