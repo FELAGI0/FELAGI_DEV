@@ -1,0 +1,52 @@
+---
+/**
+ * One numbered principle (brief §7 Principles).
+ *
+ * The number is passed in rather than derived from the array index by a caller,
+ * so the ordering stays explicit at the call site and does not depend on
+ * iteration order. It is rendered as text, and the list it sits in already
+ * conveys the ordering, so it is marked decorative for assistive tech.
+ */
+interface Props {
+  /** 1-based position, shown before the text. */
+  index: number;
+  /** The principle itself, already translated by the caller. */
+  text: string;
+}
+
+const { index, text } = Astro.props;
+
+/** Zero-padded so the numbers stay a fixed width past nine. */
+const label = String(index).padStart(2, '0');
+---
+
+<li class="principle">
+  <span class="principle__index" aria-hidden="true">{label}</span>
+  <span class="principle__text">{text}</span>
+</li>
+
+<style>
+  .principle {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .principle:last-child {
+    border-bottom: 0;
+  }
+
+  .principle__index {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--accent);
+  }
+
+  .principle__text {
+    font-size: var(--text-lg);
+    color: var(--fg);
+  }
+</style>

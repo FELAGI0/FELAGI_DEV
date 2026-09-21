@@ -1,6 +1,25 @@
 ---
+/**
+ * Home page (brief §6): hero, stack marquee, selected projects, about,
+ * principles, focus, skills and contacts.
+ *
+ * Every section's text comes from `src/i18n/ui.ts`; technology names come from
+ * `src/consts.ts`. Nothing user-facing is hardcoded here, so adding a language
+ * is a dictionary edit rather than a template edit.
+ *
+ * Layout is deliberately plain — spacing, typography and motion are CP4. The
+ * goal here is that all the content exists, is translated, and is reachable.
+ */
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Logo from '@/components/Logo.astro';
+import Marquee from '@/components/Marquee.astro';
+import PrincipleItem from '@/components/PrincipleItem.astro';
+import ProjectCard from '@/components/ProjectCard.astro';
+import Section from '@/components/Section.astro';
+import SkillCard from '@/components/SkillCard.astro';
+import { CONTACTS, OWNER_HANDLE, SKILL_GROUPS, STACK } from '@/consts';
+import { getFeaturedProjects } from '@/i18n/projects';
 import { locales, type Lang, type UIKey } from '@/i18n/ui';
 import { t } from '@/i18n/utils';
 
@@ -9,17 +28,122 @@ export const getStaticPaths = (() =>
 
 const { lang } = Astro.params as { lang: Lang };
 
-const titleKey: UIKey = 'home.title';
+/** Show at most this many featured projects on the home page. */
+const MAX_FEATURED = 3;
+
+const featured = (await getFeaturedProjects(lang)).slice(0, MAX_FEATURED);
+
+const principleKeys: UIKey[] = [
+  'principles.1',
+  'principles.2',
+  'principles.3',
+  'principles.4',
+];
+
+const projectsHref = `/${lang}/projects/`;
 ---
 
-<BaseLayout lang={lang} title={t(lang, titleKey)}>
-  <p class="eyebrow">{t(lang, 'home.eyebrow')}</p>
-  <h1>{t(lang, titleKey)}</h1>
-  <p class="lede">{t(lang, 'home.intro')}</p>
+<BaseLayout lang={lang} title="FELAGI_DEV">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero__body">
+      <p class="hero__name">
+        {t(lang, 'home.name')} · <span class="hero__handle">{OWNER_HANDLE}</span>
+      </p>
+      <h1 class="hero__role">{t(lang, 'home.role')}</h1>
+      <p class="hero__stack">{STACK.slice(0, 3).join(' · ')}</p>
+      <p class="hero__tagline">{t(lang, 'home.tagline')}</p>
+      <a class="hero__cta" href={projectsHref}>{t(lang, 'projects.title')}</a>
+    </div>
+    <div class="hero__mark" aria-hidden="true">
+      <Logo size="lg" />
+    </div>
+  </div>
+
+  <!-- Stack marquee -->
+  <div class="marquee-wrap">
+    <Marquee />
+  </div>
+
+  <!-- Selected projects -->
+  <Section id="projects" title={t(lang, 'home.selected.title')}>
+    {
+      featured.length > 0 ? (
+        <ul class="project-list">
+          {featured.map((project) => (
+            <ProjectCard project={project} />
+          ))}
+        </ul>
+      ) : (
+        <p>{t(lang, 'projects.empty')}</p>
+      )
+    }
+    <p class="section-more">
+      <a href={projectsHref}>{t(lang, 'home.selected.all')} →</a>
+    </p>
+  </Section>
+
+  <!-- About -->
+  <Section id="about" title={t(lang, 'nav.home')}>
+    <p>{t(lang, 'about.p1')}</p>
+    <p>{t(lang, 'about.p2')}</p>
+  </Section>
+
+  <!-- Principles -->
+  <Section id="principles" title={t(lang, 'principles.title')}>
+    <ol class="principles">
+      {
+        principleKeys.map((key, i) => (
+          <PrincipleItem index={i + 1} text={t(lang, key)} />
+        ))
+      }
+    </ol>
+  </Section>
+
+  <!-- Focus -->
+  <Section id="focus" title={t(lang, 'focus.title')}>
+    <p class="focus">{t(lang, 'focus.line')}</p>
+  </Section>
+
+  <!-- Skills -->
+  <Section id="skills" title={t(lang, 'skills.title')}>
+    <ul class="skills">
+      {
+        SKILL_GROUPS.map((group) => (
+          <SkillCard lang={lang} labelKey={group.labelKey} items={group.items} />
+        ))
+      }
+    </ul>
+  </Section>
+
+  <!-- Contacts -->
+  <Section id="contacts" title={t(lang, 'contacts.title')}>
+    <p>{t(lang, 'contacts.note')}</p>
+    <ul class="contacts">
+      {
+        CONTACTS.map((contact) => (
+          <li class="contacts__item">
+            <a class="contacts__link" href={contact.href}>
+              {contact.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
 </BaseLayout>
 
 <style>
-  .eyebrow {
+  /* Hero */
+  .hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+    padding-block: var(--space-12);
+  }
+
+  .hero__name {
     margin-bottom: var(--space-2);
     font-size: var(--text-sm);
     font-weight: 500;
@@ -28,8 +152,115 @@ const titleKey: UIKey = 'home.title';
     color: var(--accent);
   }
 
-  .lede {
+  .hero__handle {
+    color: var(--fg-subtle);
+    text-transform: none;
+  }
+
+  .hero__role {
+    font-size: var(--text-2xl);
+  }
+
+  .hero__stack {
+    margin-bottom: var(--space-4);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+
+  .hero__tagline {
+    max-width: 55ch;
+    margin-bottom: var(--space-6);
+    font-size: var(--text-lg);
+    color: var(--fg);
+  }
+
+  .hero__cta {
+    display: inline-block;
+    padding: var(--space-3) var(--space-6);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .hero__cta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .hero__mark {
+    flex: none;
+  }
+
+  /* The monogram is decorative and space-hungry; on narrow screens the text
+     carries the page. */
+  @media (max-width: 48rem) {
+    .hero {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: var(--space-6);
+    }
+
+    .hero__mark {
+      display: none;
+    }
+  }
+
+  /* Marquee sits between the hero and the first section, so it brings its own
+     spacing rather than relying on `.section + .section`. */
+  .marquee-wrap {
+    padding-block: var(--space-8);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Shared list layouts */
+  .project-list,
+  .skills {
+    display: grid;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .skills {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .section-more {
+    margin-top: var(--space-6);
+    font-size: var(--text-sm);
+  }
+
+  .principles {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .focus {
     max-width: 60ch;
     font-size: var(--text-lg);
+    color: var(--fg);
+  }
+
+  .contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .contacts__link {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
   }
 </style>

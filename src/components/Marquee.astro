@@ -1,0 +1,124 @@
+---
+/**
+ * Scrolling stack marquee (brief §6.3).
+ *
+ * Decorative: the same technologies are listed as a real, readable list in the
+ * Skills section, so this block is hidden from assistive tech rather than having
+ * a screen reader announce the stack four times.
+ *
+ * Seamlessness needs exact arithmetic, not "a few copies":
+ *   - the track holds N copies of one set,
+ *   - it shifts by exactly one set width, i.e. `-100% / N`,
+ *   - and the loop is only gapless while the *unshifted* remainder still covers
+ *     the viewport, which holds when `(N - 1) * setWidth >= viewport`.
+ * With a set around 1000px and four copies, that leaves ~3000px of slack —
+ * enough for the widest desktop we target.
+ */
+import { STACK } from '@/consts';
+
+/** Copies of the stack in the track. Must match the shift below. */
+const COPIES = 4;
+
+/** Shift of one set width, as a percentage of the whole track. */
+const SHIFT_PERCENT = 100 / COPIES;
+
+const copies = Array.from({ length: COPIES });
+---
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    {
+      copies.map(() => (
+        <div class="marquee__set">
+          {STACK.map((tech) => (
+            <span class="marquee__item">{tech}</span>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style define:vars={{ shift: `-${SHIFT_PERCENT}%` }}>
+  .marquee {
+    overflow: hidden;
+    /* Fade the edges so items do not pop in and out at the boundary. */
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 8%,
+      black 92%,
+      transparent
+    );
+    user-select: none;
+  }
+
+  .marquee__track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 40s linear infinite;
+  }
+
+  .marquee__set {
+    display: flex;
+    gap: var(--space-6);
+    padding-inline-end: var(--space-6);
+  }
+
+  @keyframes marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(var(--shift));
+    }
+  }
+
+  .marquee__item {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+
+  /* Separator dot after every item, including the last of each set, so the
+     rhythm is unbroken across the seam. */
+  .marquee__item::after {
+    content: '·';
+    margin-inline-start: var(--space-6);
+    opacity: 0.4;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+      width: auto;
+      flex-wrap: wrap;
+    }
+
+    /* Without animation the track would clip mid-word, so let it wrap. Showing
+       all four copies would then repeat the stack four times, so only the first
+       set survives — it is the same list, and the Skills section repeats it
+       anyway. */
+    .marquee__set:not(:first-child) {
+      display: none;
+    }
+
+    .marquee__set {
+      flex-wrap: wrap;
+      gap: var(--space-3);
+      padding-inline-end: 0;
+    }
+
+    /* The dot separator reads as punctuation clutter once the list wraps. */
+    .marquee__item::after {
+      content: none;
+    }
+
+    .marquee {
+      mask-image: none;
+    }
+  }
+</style>

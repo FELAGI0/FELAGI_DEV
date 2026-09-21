@@ -1,0 +1,66 @@
+---
+/**
+ * One skills column: a translated category name and the technologies in it
+ * (brief §7 Skills).
+ *
+ * `labelKey` rather than a `label` string: the category name is translated
+ * ("Backend"/"Backend", "Infrastructure"/«Infrastructure»), so the component
+ * resolves it against the page's locale instead of receiving a pre-translated
+ * string from a caller that might pass the wrong one.
+ */
+import type { UIKey } from '@/i18n/ui';
+import type { Lang } from '@/i18n/ui';
+import { t } from '@/i18n/utils';
+
+interface Props {
+  /** Locale, used to resolve `labelKey`. */
+  lang: Lang;
+  /** Dictionary key for the column heading. */
+  labelKey: UIKey;
+  /** Technology names — proper nouns, identical in every language. */
+  items: readonly string[];
+}
+
+const { lang, labelKey, items } = Astro.props;
+---
+
+<li class="skill-card">
+  <h3 class="skill-card__title">{t(lang, labelKey)}</h3>
+  <ul class="skill-card__items">
+    {
+      items.map((item) => (
+        <li class="skill-card__item">{item}</li>
+      ))
+    }
+  </ul>
+</li>
+
+<style>
+  .skill-card {
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .skill-card__title {
+    margin-bottom: var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .skill-card__items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .skill-card__item {
+    padding-block: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+  }
+</style>

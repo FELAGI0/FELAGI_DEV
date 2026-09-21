@@ -1,0 +1,49 @@
+---
+/**
+ * Section wrapper: a heading, an anchor target, and consistent vertical rhythm.
+ *
+ * Exists so section spacing and heading level are decided in one place instead
+ * of being re-derived on every page. `id` makes the section linkable; the
+ * heading is referenced by it as well, so an anchor jump lands on a labelled
+ * region rather than an unlabelled `<div>`.
+ */
+interface Props {
+  /** Anchor id, e.g. `projects`. Also prefixes the heading's own id. */
+  id: string;
+  /** Section heading, already translated by the caller. */
+  title?: string;
+  /** Heading level. Sections on a page are `h2`; nested blocks use `h3`. */
+  level?: 2 | 3;
+}
+
+const { id, title, level = 2 } = Astro.props;
+
+const Heading = `h${level}` as const;
+const headingId = `${id}-title`;
+---
+
+<section class="section" id={id} aria-labelledby={title ? headingId : undefined}>
+  {
+    title && (
+      <Heading class="section__title" id={headingId}>
+        {title}
+      </Heading>
+    )
+  }
+  <slot />
+</section>
+
+<style>
+  .section {
+    padding-block: var(--space-12);
+  }
+
+  .section + .section {
+    border-top: 1px solid var(--border);
+  }
+
+  .section__title {
+    margin-bottom: var(--space-6);
+    font-size: var(--text-xl);
+  }
+</style>
