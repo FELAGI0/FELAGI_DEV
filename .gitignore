@@ -25,6 +25,8 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
-# local visual-review screenshots (reference only, never shipped)
+# Local screenshot output. Kept ignored so an ad-hoc capture can never be
+# committed, but no longer used in the review flow: layout is verified with
+# programmatic measurements (geometry, computed styles, contrast) instead.
 review/
 

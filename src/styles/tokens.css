@@ -97,9 +97,35 @@
   --radius-lg: 12px;
   --radius-full: 999px;
 
-  /* Container — 1360px content width, 24px side padding. */
-  --container: 85rem;
-  --gutter: var(--space-6);
+  /*
+   * Container — up to 1680px.
+   *
+   * Measured at 2560px: a 1360px container left 600px of empty screen on each
+   * side, so more than half the viewport was margin and the layout read as a
+   * narrow ribbon in the middle of a large display. 1680px is the widest that
+   * still leaves a deliberate margin at 1920 (120px per side) while giving the
+   * multi-column compositions room to actually use the width.
+   *
+   * The outer margin comes from `--gutter`, which widens at 1440px and up (see
+   * below) rather than from shrinking this cap. Expressing it as padding keeps
+   * the phone layout intact: a `min(1680px, 100% - 4rem)` cap would have taken
+   * 32px off each side at 360px as well, leaving 248px of usable width on the
+   * smallest screens — losing room exactly where it is scarcest.
+   *
+   * This is safe for readability because body copy does not inherit it: prose is
+   * capped by `--measure` and the two-column sections give each column its own
+   * comfortable line length instead of one very long line.
+   */
+  --container: 105rem; /* 1680px */
+  --gutter: var(--space-6); /* 24px */
+
+  /*
+   * Maximum line length for running prose, in `ch` so it tracks the font rather
+   * than a pixel guess. 68ch sits inside the 60–75ch range that is comfortable
+   * to read; without it a paragraph would stretch to the full container width
+   * and the eye would lose its place returning to the next line.
+   */
+  --measure: 68ch;
 
   --transition: 150ms ease;
 }
