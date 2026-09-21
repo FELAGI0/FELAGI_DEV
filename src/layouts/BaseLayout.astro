@@ -1,7 +1,10 @@
 ---
+import Footer from '@/components/Footer.astro';
 import LangSwitcher from '@/components/LangSwitcher.astro';
+import Logo from '@/components/Logo.astro';
 import ThemeScript from '@/components/ThemeScript.astro';
 import ThemeToggle from '@/components/ThemeToggle.astro';
+import { SITE_DESCRIPTION, SITE_NAME } from '@/consts';
 import { getLangFromUrl, localizePath, t } from '@/i18n/utils';
 import type { Lang, UIKey } from '@/i18n/ui';
 import '@/styles/global.css';
@@ -15,11 +18,9 @@ interface Props {
   description?: string;
 }
 
-const { lang, title, description = 'Portfolio of a software developer.' } =
-  Astro.props;
+const { lang, title, description = SITE_DESCRIPTION } = Astro.props;
 
-const siteName = 'FELAGI_DEV';
-const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
 
 // Derive the locale from the URL too and warn loudly in dev if a page and its
 // layout disagree — that mismatch is otherwise invisible until a human notices
@@ -51,7 +52,10 @@ const nav: { key: UIKey; href: string }[] = [
   <body>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__brand" href={localizePath('/', lang)}>{siteName}</a>
+        <a class="site-header__brand" href={localizePath('/', lang)}>
+          <Logo size="sm" />
+          <span class="site-header__name">{SITE_NAME}</span>
+        </a>
         <nav class="site-nav" aria-label="Main">
           <ul class="site-nav__list">
             {
@@ -82,13 +86,7 @@ const nav: { key: UIKey; href: string }[] = [
         <slot />
       </div>
     </main>
-    <footer class="site-footer">
-      <div class="container">
-        <p class="site-footer__text">
-          © {new Date().getFullYear()} {siteName} — {t(lang, 'footer.note')}
-        </p>
-      </div>
-    </footer>
+    <Footer lang={lang} />
   </body>
 </html>
 
@@ -101,11 +99,14 @@ const nav: { key: UIKey; href: string }[] = [
   .site-header__inner {
     display: flex;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-4);
     min-height: 4rem;
   }
 
   .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
     font-weight: 600;
     letter-spacing: var(--tracking-tight);
     color: var(--fg);
@@ -114,6 +115,31 @@ const nav: { key: UIKey; href: string }[] = [
 
   .site-header__brand:hover {
     color: var(--accent);
+  }
+
+  .site-header__name {
+    /* The wordmark reads as a technical mark, matching the monogram. */
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  /*
+   * Narrow screens: logo, nav, language switcher and theme toggle together
+   * exceed a phone's width. The wordmark is the one part that carries no
+   * information the monogram and the page itself do not already give, so it is
+   * the part that goes — dropping it keeps every interactive control and its
+   * touch target intact rather than shrinking something tappable.
+   */
+  @media (max-width: 34rem) {
+    .site-header__inner {
+      gap: var(--space-2);
+    }
+
+    .site-header__name {
+      display: none;
+    }
   }
 
   .site-nav {
@@ -142,16 +168,5 @@ const nav: { key: UIKey; href: string }[] = [
     display: flex;
     align-items: center;
     gap: var(--space-2);
-  }
-
-  .site-footer {
-    border-top: 1px solid var(--border);
-    padding-block: var(--space-8);
-  }
-
-  .site-footer__text {
-    margin: 0;
-    font-size: var(--text-sm);
-    color: var(--fg-subtle);
   }
 </style>

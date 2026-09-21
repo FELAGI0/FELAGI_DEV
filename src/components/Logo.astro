@@ -1,0 +1,70 @@
+---
+/**
+ * Monogram: a dark rounded square holding a single "F" (brief §5).
+ *
+ * The square is always `#0a0a0a` and the letter always `#e5e5e5`, in both
+ * themes. These are literals rather than design tokens on purpose: the mark is
+ * a fixed brand asset, not a themed surface. If it followed `--bg`, the light
+ * theme would turn it into a white square with dark text and it would stop
+ * being the same logo.
+ *
+ * The SVG is decorative (`aria-hidden`). In the header it sits inside the brand
+ * link, and in the hero it sits next to the name, so the accessible name comes
+ * from that surrounding text; giving the mark its own `<title>` would make a
+ * screen reader announce the name twice.
+ */
+interface Props {
+  /** Rendered edge length: 32px (header), 48px (inline), 200px (hero). */
+  size?: 'sm' | 'md' | 'lg';
+}
+
+const { size = 'sm' } = Astro.props;
+
+const SIZE_PX = { sm: 32, md: 48, lg: 200 } as const;
+
+const px = SIZE_PX[size];
+
+/**
+ * The brief specifies a 12px radius at the 32px size. Scaling it by the same
+ * ratio keeps the silhouette identical at 200px instead of looking like a
+ * rounded square one moment and a squircle the next.
+ */
+const radius = Math.round((12 / 32) * px);
+
+/** Letter occupies ~55% of the square's edge (brief §5). */
+const letterSize = Math.round(px * 0.55);
+---
+
+<svg
+  class="logo"
+  width={px}
+  height={px}
+  viewBox={`0 0 ${px} ${px}`}
+  aria-hidden="true"
+  focusable="false"
+>
+  <rect width={px} height={px} rx={radius} fill="#0a0a0a" />
+  <text
+    class="logo__letter"
+    x="50%"
+    y="50%"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-size={letterSize}
+    fill="#e5e5e5">F</text
+  >
+</svg>
+
+<style>
+  .logo {
+    display: block;
+    flex: none;
+  }
+
+  .logo__letter {
+    /* JetBrains Mono arrives with the typography pass; until then the generic
+       monospace fallback keeps the letter's proportions close. */
+    font-family: 'JetBrains Mono', var(--font-mono);
+    font-weight: 700;
+  }
+</style>

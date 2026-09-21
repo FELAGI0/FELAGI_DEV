@@ -25,3 +25,6 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# local visual-review screenshots (reference only, never shipped)
+review/
+

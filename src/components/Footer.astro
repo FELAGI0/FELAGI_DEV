@@ -1,0 +1,83 @@
+---
+/**
+ * Site footer (brief §6.10): copyright plus the outbound contact links.
+ *
+ * Contact labels are proper nouns and stay untranslated, but the landmark needs
+ * an accessible name, and that name *is* translated — hence the `t()` call for
+ * the `aria-label` only.
+ */
+import { CONTACTS, OWNER_HANDLE } from '@/consts';
+import { t } from '@/i18n/utils';
+import type { Lang } from '@/i18n/ui';
+
+interface Props {
+  /** Locale of the page, used for the link list's accessible name. */
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+// The brief pins the copyright to © 2026. `new Date()` would drift to 2027 on
+// its own; the year is a fact about the site, so it is written down.
+const YEAR = 2026;
+---
+
+<footer class="footer">
+  <div class="container footer__inner">
+    <p class="footer__copy">© {YEAR} {OWNER_HANDLE}</p>
+    <nav aria-label={t(lang, 'footer.linksLabel')}>
+      <ul class="footer__links">
+        {
+          CONTACTS.map((contact) => (
+            <li>
+              <a class="footer__link" href={contact.href}>
+                {contact.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-block: var(--space-8);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .footer__copy {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--fg-subtle);
+  }
+
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer__link {
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .footer__link:hover {
+    color: var(--accent);
+  }
+</style>

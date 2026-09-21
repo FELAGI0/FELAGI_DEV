@@ -1,0 +1,168 @@
+---
+/**
+ * A single project page: `/[lang]/projects/[slug]/`.
+ *
+ * `getStaticPaths()` emits one route per existing content file, so a slug is
+ * only reachable in a language it was actually translated into. A URL for a
+ * project that does not exist is never generated, which means the static host
+ * serves a real 404 instead of this page rendering something empty.
+ *
+ * The body is the MDX the author wrote; the metadata block above it is built
+ * from the validated frontmatter, so the title, date, stack and links cannot
+ * drift out of sync with the card on the list page.
+ */
+import type { GetStaticPaths } from 'astro';
+import { render } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getProjectPages, type Project } from '@/i18n/projects';
+import { t } from '@/i18n/utils';
+
+export const getStaticPaths = (async () => {
+  const pages = await getProjectPages();
+  return pages.map((project) => ({
+    // Both params come from the same content file, so they can never be mixed:
+    // `slug=felagi-crm, lang=ru` exists only because `felagi-crm/ru.mdx` does.
+    params: { slug: project.slug, lang: project.lang },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { lang, entry } = project;
+const { data } = entry;
+
+const { Content } = await render(entry);
+---
+
+<BaseLayout lang={lang} title={data.title} description={data.summary}>
+  <p class="back">
+    <a href={`/${lang}/projects/`}>← {t(lang, 'projects.back')}</a>
+  </p>
+
+  <header class="project-header">
+    <h1>{data.title}</h1>
+    <p class="project-header__summary">{data.summary}</p>
+
+    <ul class="stack">
+      {
+        data.stack.map((tech) => (
+          <li class="stack__chip">{tech}</li>
+        ))
+      }
+    </ul>
+
+    <p class="project-header__meta">
+      <span class="project-header__date">{data.date}</span>
+      <a href={data.repo}>{t(lang, 'projects.repo')}</a>
+      {data.demo && <a href={data.demo}>{t(lang, 'projects.demo')}</a>}
+    </p>
+
+    {data.demoNote && <p class="project-header__note">{data.demoNote}</p>}
+  </header>
+
+  <article class="prose">
+    <Content />
+  </article>
+</BaseLayout>
+
+<style>
+  .back {
+    margin-bottom: var(--space-6);
+    font-size: var(--text-sm);
+  }
+
+  .back a {
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .back a:hover {
+    color: var(--accent);
+  }
+
+  .project-header {
+    padding-bottom: var(--space-8);
+    margin-bottom: var(--space-8);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .project-header__summary {
+    max-width: 65ch;
+    font-size: var(--text-lg);
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack__chip {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  .project-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .project-header__date {
+    font-family: var(--font-mono);
+    color: var(--fg-subtle);
+  }
+
+  .project-header__note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    color: var(--fg-subtle);
+  }
+
+  /* Prose styles for rendered MDX. Scoped to this page only: the global
+     stylesheet should not restyle every heading on the site just because one
+     page renders Markdown. */
+  .prose {
+    max-width: 70ch;
+  }
+
+  .prose :global(h2) {
+    margin-top: var(--space-8);
+    font-size: var(--text-xl);
+  }
+
+  .prose :global(h3) {
+    margin-top: var(--space-6);
+    font-size: var(--text-lg);
+  }
+
+  .prose :global(ul) {
+    margin: 0 0 var(--space-4);
+    padding-inline-start: var(--space-6);
+    color: var(--fg-muted);
+  }
+
+  .prose :global(li) {
+    margin-bottom: var(--space-2);
+  }
+
+  .prose :global(code) {
+    padding: 0.1em 0.35em;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    color: var(--fg);
+  }
+</style>

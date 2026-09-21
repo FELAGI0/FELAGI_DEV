@@ -1,0 +1,119 @@
+---
+/**
+ * A single project card (brief §10).
+ *
+ * Extracted from the projects list so the same markup can be reused on the home
+ * page's "selected projects" block. `project` is the typed object from
+ * `src/i18n/projects.ts`, so every field below is checked against the
+ * collection schema at build time.
+ *
+ * The whole card is not one link: it contains three separate destinations
+ * (detail page, repo, demo). Wrapping them in a single anchor would nest links,
+ * which is invalid HTML and unusable with a keyboard.
+ *
+ * Renders an `<li>`: the card is only ever used inside a `<ul>` list of
+ * projects, so the list element belongs to the component rather than being
+ * repeated by every caller.
+ */
+import type { Project } from '@/i18n/projects';
+import { t } from '@/i18n/utils';
+
+interface Props {
+  /** The project to render, with its slug, locale and validated data. */
+  project: Project;
+}
+
+const { project } = Astro.props;
+const { slug, lang, entry } = project;
+const { data } = entry;
+
+const detailHref = `/${lang}/projects/${slug}/`;
+---
+
+<li class="project-card">
+  <h2 class="project-card__title">
+    <a href={detailHref}>{data.title}</a>
+  </h2>
+
+  <p class="project-card__summary">{data.summary}</p>
+
+  <ul class="stack">
+    {
+      data.stack.map((tech) => (
+        <li class="stack__chip">{tech}</li>
+      ))
+    }
+  </ul>
+
+  <p class="project-card__meta">
+    <span class="project-card__date">{data.date}</span>
+    <a href={data.repo}>{t(lang, 'projects.repo')}</a>
+    {data.demo && <a href={data.demo}>{t(lang, 'projects.demo')}</a>}
+  </p>
+
+  {data.demoNote && <p class="project-card__note">{data.demoNote}</p>}
+</li>
+
+<style>
+  .project-card {
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .project-card__title {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xl);
+  }
+
+  .project-card__title a {
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .project-card__title a:hover {
+    color: var(--accent);
+  }
+
+  .project-card__summary {
+    max-width: 65ch;
+    margin-bottom: var(--space-4);
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  .stack__chip {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--fg-muted);
+  }
+
+  .project-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .project-card__date {
+    font-family: var(--font-mono);
+    color: var(--fg-subtle);
+  }
+
+  .project-card__note {
+    margin: var(--space-2) 0 0;
+    font-size: var(--text-sm);
+    color: var(--fg-subtle);
+  }
+</style>

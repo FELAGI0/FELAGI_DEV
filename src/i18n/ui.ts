@@ -24,7 +24,9 @@ const en = {
   'projects.stackLabel': 'Stack',
   'projects.repo': 'Source',
   'projects.demo': 'Demo',
-  'footer.note': 'Built with Astro. Static, no trackers.',
+  'projects.back': 'Back to projects',
+  'projects.notFound': 'Project not found.',
+  'footer.linksLabel': 'Links',
   'redirect.title': 'Redirecting',
   'redirect.manual': 'Choose a language:',
 } as const;
@@ -50,7 +52,9 @@ const ru: Record<UIKey, string> = {
   'projects.stackLabel': 'Стек',
   'projects.repo': 'Исходники',
   'projects.demo': 'Демо',
-  'footer.note': 'Собрано на Astro. Статика, без трекеров.',
+  'projects.back': 'К проектам',
+  'projects.notFound': 'Проект не найден.',
+  'footer.linksLabel': 'Ссылки',
   'redirect.title': 'Перенаправление',
   'redirect.manual': 'Выберите язык:',
 };

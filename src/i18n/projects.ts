@@ -111,4 +111,26 @@ export async function getProjectSlugs(): Promise<string[]> {
   return [...slugs];
 }
 
+/**
+ * Every project page that should exist, as `{ slug, lang, project }`.
+ *
+ * One entry per *existing file*, so `/ru/projects/x/` is only generated when
+ * `x/ru.mdx` actually exists — a project translated into English only produces
+ * an English page, and the Russian URL 404s rather than rendering English text
+ * under a Russian prefix. That is the same "hidden in that language" rule the
+ * list page applies, expressed where routes are built.
+ */
+export async function getProjectPages(): Promise<Project[]> {
+  const entries = await getCollection('projects');
+
+  const pages: Project[] = [];
+  for (const entry of entries) {
+    const parsed = parseProjectId(entry.id);
+    if (parsed === null) continue;
+    pages.push({ slug: parsed.slug, lang: parsed.lang, entry });
+  }
+
+  return pages;
+}
+
 export { defaultLang };
