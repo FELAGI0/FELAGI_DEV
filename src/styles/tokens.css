@@ -87,9 +87,8 @@
   --space-6: 1.5rem; /* 24px — card gap and container padding (brief §4) */
   --space-8: 2rem;
   --space-12: 3rem;
-  --space-16: 4rem;
-  --space-20: 5rem; /* 80px — section rhythm, mobile (brief §4) */
-  --space-30: 7.5rem; /* 120px — section rhythm, desktop (brief §4) */
+  --space-16: 4rem; /* 64px — section rhythm, mobile */
+  --space-24: 6rem; /* 96px — section rhythm, desktop */
 
   /* Shape — brief §4: 12px cards, 999px chips, no shadows. */
   --radius-sm: 4px;
@@ -97,8 +96,8 @@
   --radius-lg: 12px;
   --radius-full: 999px;
 
-  /* Container — brief §4: 1200px content width, 24px side padding. */
-  --container: 75rem;
+  /* Container — 1280px content width, 24px side padding. */
+  --container: 80rem;
   --gutter: var(--space-6);
 
   --transition: 150ms ease;

@@ -22,7 +22,7 @@ const en = {
   'home.name': 'Artem',
   'home.role': 'Backend Developer',
   'home.tagline':
-    'I design and build production-ready web applications in Python.',
+    'I build backends for SaaS, CRM and Telegram bots: API, business logic, data.',
   'home.heroLabel': 'Introduction',
 
   // Stack marquee
@@ -44,11 +44,6 @@ const en = {
   'principles.2': 'Readable, typed code',
   'principles.3': 'Tests and automation',
   'principles.4': 'Docker and a documented API',
-
-  // Focus
-  'focus.title': 'Focus',
-  'focus.line':
-    'Right now the focus is production-ready backend, architecture, and getting ready to work in a strong product team.',
 
   // Skills
   'skills.title': 'Skills',
@@ -88,7 +83,7 @@ const ru: Record<UIKey, string> = {
   'home.name': 'Артем',
   'home.role': 'Backend-разработчик',
   'home.tagline':
-    'Проектирую и разрабатываю production-ready веб-приложения на Python.',
+    'Строю бэкенды для SaaS, CRM и Telegram-ботов: API, бизнес-логика, работа с данными.',
   'home.heroLabel': 'Кто я',
 
   // Stack marquee
@@ -110,11 +105,6 @@ const ru: Record<UIKey, string> = {
   'principles.2': 'Читаемый и типизированный код',
   'principles.3': 'Тесты и автоматизация',
   'principles.4': 'Docker и документированный API',
-
-  // Focus
-  'focus.title': 'Фокус',
-  'focus.line':
-    'Сейчас фокус — production-ready backend, архитектура и подготовка к работе в сильной продуктовой команде.',
 
   // Skills
   'skills.title': 'Навыки',

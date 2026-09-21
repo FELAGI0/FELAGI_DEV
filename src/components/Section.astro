@@ -6,6 +6,12 @@
  * of being re-derived on every page. `id` makes the section linkable; the
  * heading is referenced by it as well, so an anchor jump lands on a labelled
  * region rather than an unlabelled `<div>`.
+ *
+ * It carries no `<style>` block on purpose: `.section` (rhythm, separator) and
+ * `.section__title` (heading spacing) are defined in `global.css`. The home page
+ * writes two sections by hand — the split About and Principles — and Astro
+ * scopes a component's styles to that component's own markup, so rules kept here
+ * would silently skip them. One copy in global.css keeps both from drifting.
  */
 interface Props {
   /** Anchor id, e.g. `projects`. Also prefixes the heading's own id. */
@@ -32,25 +38,3 @@ const headingId = `${id}-title`;
   }
   <slot />
 </section>
-
-<style>
-  .section {
-    padding-block: var(--space-20);
-  }
-
-  /* Brief §4: 80px on mobile, 120px from 768px up. */
-  @media (min-width: 48rem) {
-    .section {
-      padding-block: var(--space-30);
-    }
-  }
-
-  .section + .section {
-    border-top: 1px solid var(--border);
-  }
-
-  .section__title {
-    margin-bottom: var(--space-6);
-    font-size: var(--text-2xl);
-  }
-</style>

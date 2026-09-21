@@ -36,31 +36,60 @@ const { lang, labelKey, items } = Astro.props;
 </li>
 
 <style>
+  /*
+   * Compact card, sized by its own content. The parent `.skills` is a flex row,
+   * so a group with two items stays narrow and a group with six is wider —
+   * density follows the data instead of every tile being padded out to the same
+   * rectangle.
+   *
+   * `min-width: 0` matters: without it a flex item refuses to shrink below its
+   * min-content width, so the three cards would overrun a narrow container and
+   * wrap instead of tightening.
+   */
   .skill-card {
-    padding: var(--space-6);
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: var(--space-4);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
   }
 
   .skill-card__title {
-    margin-bottom: var(--space-4);
-    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-xs);
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--accent);
   }
 
+  /*
+   * Items flow as one inline row separated by a muted "·" rather than a stacked
+   * list: with two to six short names per group, stacking reads as wasted
+   * vertical space. The inner list still wraps on its own when the card is
+   * squeezed, so a narrow card degrades to two lines instead of overflowing.
+   */
   .skill-card__items {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .skill-card__item {
-    padding-block: var(--space-1);
     font-family: var(--font-mono);
-    font-size: var(--text-sm);
+    /* Chip scale (brief §3) rather than body scale: these are chip-like
+       tokens, and the smaller size is what lets three cards share one row. */
+    font-size: var(--text-chip);
     color: var(--fg-muted);
+  }
+
+  .skill-card__item + .skill-card__item::before {
+    content: '·';
+    margin-inline-end: var(--space-2);
+    color: var(--border-strong);
   }
 </style>

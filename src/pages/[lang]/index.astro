@@ -1,14 +1,15 @@
 ---
 /**
  * Home page (brief §6): hero, stack marquee, selected projects, about,
- * principles, focus, skills and contacts.
+ * principles, skills and contacts.
  *
  * Every section's text comes from `src/i18n/ui.ts`; technology names come from
  * `src/consts.ts`. Nothing user-facing is hardcoded here, so adding a language
  * is a dictionary edit rather than a template edit.
  *
- * Layout is deliberately plain — spacing, typography and motion are CP4. The
- * goal here is that all the content exists, is translated, and is reachable.
+ * About and Principles use a two-column layout with a sticky heading, which
+ * needs its own markup rather than `<Section>`'s single-column slot — see the
+ * `.split` rules at the bottom of this file.
  */
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -83,27 +84,32 @@ const projectsHref = `/${lang}/projects/`;
     </p>
   </Section>
 
-  <!-- About -->
-  <Section id="about" title={t(lang, 'nav.home')}>
-    <p>{t(lang, 'about.p1')}</p>
-    <p>{t(lang, 'about.p2')}</p>
-  </Section>
+  <!-- About: two columns, sticky heading on the left -->
+  <section class="section split" id="about" aria-labelledby="about-title">
+    <h2 class="section__title split__title" id="about-title">
+      {t(lang, 'nav.home')}
+    </h2>
+    <div class="split__body">
+      <p>{t(lang, 'about.p1')}</p>
+      <p>{t(lang, 'about.p2')}</p>
+    </div>
+  </section>
 
-  <!-- Principles -->
-  <Section id="principles" title={t(lang, 'principles.title')}>
-    <ol class="principles">
-      {
-        principleKeys.map((key, i) => (
-          <PrincipleItem index={i + 1} text={t(lang, key)} />
-        ))
-      }
-    </ol>
-  </Section>
-
-  <!-- Focus -->
-  <Section id="focus" title={t(lang, 'focus.title')}>
-    <p class="focus">{t(lang, 'focus.line')}</p>
-  </Section>
+  <!-- Principles: same two-column shape -->
+  <section class="section split" id="principles" aria-labelledby="principles-title">
+    <h2 class="section__title split__title" id="principles-title">
+      {t(lang, 'principles.title')}
+    </h2>
+    <div class="split__body">
+      <ol class="principles">
+        {
+          principleKeys.map((key, i) => (
+            <PrincipleItem index={i + 1} text={t(lang, key)} />
+          ))
+        }
+      </ol>
+    </div>
+  </section>
 
   <!-- Skills -->
   <Section id="skills" title={t(lang, 'skills.title')}>
@@ -140,13 +146,13 @@ const projectsHref = `/${lang}/projects/`;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-8);
-    /* Brief §4: hero uses the section rhythm — 80px mobile, 120px desktop. */
-    padding-block: var(--space-20);
+    /* Matches the section rhythm: 64px mobile, 96px desktop. */
+    padding-block: var(--space-16);
   }
 
   @media (min-width: 48rem) {
     .hero {
-      padding-block: var(--space-30);
+      padding-block: var(--space-24);
     }
   }
 
@@ -236,8 +242,7 @@ const projectsHref = `/${lang}/projects/`;
   }
 
   /* Shared list layouts */
-  .project-list,
-  .skills {
+  .project-list {
     display: grid;
     gap: var(--space-6);
     margin: 0;
@@ -245,10 +250,52 @@ const projectsHref = `/${lang}/projects/`;
     list-style: none;
   }
 
+  /*
+   * Two-column section: heading left, content right.
+   *
+   * Columns are `auto` + `1fr` rather than fixed fractions, so the heading takes
+   * exactly the width its longest word needs ("Infrastructure" is wider than
+   * "About") and the body gets everything else. That keeps the two split
+   * sections visually aligned without hard-coding a column width per section.
+   *
+   * The heading is sticky so it stays in view while a long body scrolls past —
+   * a small reading aid, not a page-wide sidebar. It only applies from 768px up,
+   * where there are two columns to stick between.
+   */
   @media (min-width: 48rem) {
-    .skills {
-      grid-template-columns: repeat(3, 1fr);
+    .split {
+      display: grid;
+      grid-template-columns: minmax(10rem, 16rem) 1fr;
+      gap: var(--space-12);
+      align-items: start;
     }
+
+    .split__title {
+      position: sticky;
+      top: var(--space-8);
+      margin-bottom: 0;
+    }
+  }
+
+  .split__body > :last-child {
+    margin-bottom: 0;
+  }
+
+  /*
+   * Skills: three cards, each only as wide as its own content needs.
+   *
+   * A fixed three-column grid would stretch "Frontend" (2 items) to the same
+   * width as "Backend" (6 items) and produce the uniform tiles the brief calls
+   * out. `flex` with content-sized items lets each card be as wide as it is
+   * dense, and the row simply ends where the content does.
+   */
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .section-more {
@@ -260,12 +307,6 @@ const projectsHref = `/${lang}/projects/`;
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-
-  .focus {
-    max-width: 60ch;
-    font-size: var(--text-lg);
-    color: var(--fg);
   }
 
   .contacts {
