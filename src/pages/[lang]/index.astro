@@ -1,0 +1,35 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { locales, type Lang, type UIKey } from '@/i18n/ui';
+import { t } from '@/i18n/utils';
+
+export const getStaticPaths = (() =>
+  locales.map((lang) => ({ params: { lang } }))) satisfies GetStaticPaths;
+
+const { lang } = Astro.params as { lang: Lang };
+
+const titleKey: UIKey = 'home.title';
+---
+
+<BaseLayout lang={lang} title={t(lang, titleKey)}>
+  <p class="eyebrow">{t(lang, 'home.eyebrow')}</p>
+  <h1>{t(lang, titleKey)}</h1>
+  <p class="lede">{t(lang, 'home.intro')}</p>
+</BaseLayout>
+
+<style>
+  .eyebrow {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .lede {
+    max-width: 60ch;
+    font-size: var(--text-lg);
+  }
+</style>

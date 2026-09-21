@@ -1,11 +1,110 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
+/**
+ * Entry stub for `/`.
+ *
+ * The page is static, so `/` has to decide its own locale. Exactly one
+ * mechanism must win per visitor, otherwise the visitor sees a flash on the
+ * wrong language or gets bounced twice. The rule here:
+ *
+ *   - **JS enabled** — the inline script runs during parsing and calls
+ *     `location.replace()`. It is the *only* mechanism active, because the
+ *     `<meta http-equiv="refresh">` that would otherwise compete lives inside
+ *     `<noscript>` and is inert when scripting is on. One navigation, straight
+ *     to the detected locale, no detour through `/en/`.
+ *   - **JS disabled** — the script never runs and `<noscript>` takes effect,
+ *     sending the visitor to the fallback locale. No blank page, no dead end.
+ *   - **Neither** (JS off *and* a client that ignores `<noscript>`) — the
+ *     visible links below still reach both locales.
+ *
+ * Known limitation, by design: with JavaScript disabled a Russian visitor gets
+ * `/en/` and must switch manually. This is not an oversight — `/` is a static
+ * file, byte-identical for every visitor, so the request's `Accept-Language`
+ * header is invisible to it. Its language simply cannot be detected without
+ * either JS or an edge runtime, and an edge runtime was rejected as too much
+ * machinery for this site. The `<noscript>` fallback is the honest ceiling.
+ *
+ * `location.replace()` is deliberate: the stub does not push a history entry,
+ * so the Back button does not bounce the visitor between `/` and the locale.
+ *
+ * Detection covers `navigator.languages` (plural, ordered by preference)
+ * before `navigator.language`. Only `ru*` and `en*` are mapped; anything else
+ * falls through to the fallback.
+ *
+ * `redirectToDefaultLocale: false` in astro.config.mjs keeps `/` as this stub
+ * instead of letting Astro hard-wire it to the default locale.
+ */
+const FALLBACK = '/en/';
+
+// Languages that should land on /ru/. Matched as a prefix so `ru-RU`, `ru-BY`
+// and friends all qualify; `en*` is matched the same way.
+const RU_PREFIX = 'ru';
+const EN_PREFIX = 'en';
+
+const script = `
+(function () {
+  var FALLBACK = ${JSON.stringify(FALLBACK)};
+  var langs = [];
+  try {
+    if (navigator.languages && navigator.languages.length) {
+      langs = navigator.languages;
+    } else if (navigator.language) {
+      langs = [navigator.language];
+    }
+  } catch (e) { langs = []; }
+
+  var target = FALLBACK;
+  for (var i = 0; i < langs.length; i++) {
+    var code = String(langs[i] || '').toLowerCase();
+    if (code === '${RU_PREFIX}' || code.indexOf('${RU_PREFIX}-') === 0) {
+      target = '/ru/';
+      break;
+    }
+    if (code === '${EN_PREFIX}' || code.indexOf('${EN_PREFIX}-') === 0) {
+      target = '/en/';
+      break;
+    }
+  }
+
+  location.replace(target + location.search + location.hash);
+})();
+`;
 ---
 
-<BaseLayout title="FELAGI_DEV" description="Developer portfolio — projects, stack and contact.">
-  <h1>Developer portfolio</h1>
-  <p>
-    Scaffold is in place: TypeScript strict, dark-first theme with a light toggle.
-    Routing, projects and localization land in the next checkpoints.
-  </p>
-</BaseLayout>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>FELAGI_DEV</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={FALLBACK} />
+    <link rel="alternate" hreflang="en" href="/en/" />
+    <link rel="alternate" hreflang="ru" href="/ru/" />
+    <link rel="alternate" hreflang="x-default" href={FALLBACK} />
+
+    <!--
+      Runs before <noscript> is even considered. When scripting is enabled this
+      is the one and only redirect, so there is no competing meta refresh.
+    -->
+    <script is:inline set:html={script} />
+
+    <!--
+      Active only when scripting is disabled. <noscript> is permitted to hold a
+      <meta> inside <head>, and browsers honour the refresh from there.
+    -->
+    <noscript>
+      <meta http-equiv="refresh" content={`0;url=${FALLBACK}`} />
+    </noscript>
+  </head>
+  <body>
+    <main>
+      <h1>FELAGI_DEV</h1>
+      <p>Choose a language / Выберите язык:</p>
+      <ul>
+        <li><a href="/en/" hreflang="en" lang="en">English</a></li>
+        <li><a href="/ru/" hreflang="ru" lang="ru">Русский</a></li>
+      </ul>
+    </main>
+  </body>
+</html>

@@ -4,6 +4,9 @@ dist/
 
 # dependencies
 node_modules/
+# pnpm puts its content-addressable store here when it cannot reach the
+# default location; it must never be committed.
+.pnpm-store/
 
 # logs
 *.log

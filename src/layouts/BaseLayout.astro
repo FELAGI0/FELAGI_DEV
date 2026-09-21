@@ -1,23 +1,44 @@
 ---
+import LangSwitcher from '@/components/LangSwitcher.astro';
+import ThemeScript from '@/components/ThemeScript.astro';
+import ThemeToggle from '@/components/ThemeToggle.astro';
+import { getLangFromUrl, localizePath, t } from '@/i18n/utils';
+import type { Lang, UIKey } from '@/i18n/ui';
+import '@/styles/global.css';
+
 interface Props {
+  /** Locale of the rendered page. */
+  lang: Lang;
   /** Page title without the site suffix. */
   title: string;
   /** Meta description for search engines and social previews. */
   description?: string;
 }
 
-const { title, description = 'Portfolio of a software developer.' } = Astro.props;
-
-import ThemeScript from '@/components/ThemeScript.astro';
-import ThemeToggle from '@/components/ThemeToggle.astro';
-import '@/styles/global.css';
+const { lang, title, description = 'Portfolio of a software developer.' } =
+  Astro.props;
 
 const siteName = 'FELAGI_DEV';
 const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
+
+// Derive the locale from the URL too and warn loudly in dev if a page and its
+// layout disagree — that mismatch is otherwise invisible until a human notices
+// mixed-language output.
+const urlLang = getLangFromUrl(Astro.url);
+if (import.meta.env.DEV && urlLang !== lang) {
+  console.warn(
+    `[i18n] layout lang="${lang}" but URL locale is "${urlLang}" for ${Astro.url.pathname}`,
+  );
+}
+
+const nav: { key: UIKey; href: string }[] = [
+  { key: 'nav.home', href: localizePath('/', lang) },
+  { key: 'nav.projects', href: localizePath('/projects/', lang) },
+];
 ---
 
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang={lang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,8 +51,30 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
   <body>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="site-header__brand" href="/">{siteName}</a>
-        <ThemeToggle />
+        <a class="site-header__brand" href={localizePath('/', lang)}>{siteName}</a>
+        <nav class="site-nav" aria-label="Main">
+          <ul class="site-nav__list">
+            {
+              nav.map((item) => (
+                <li>
+                  <a class="site-nav__link" href={item.href}>
+                    {t(lang, item.key)}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <div class="site-header__actions">
+          <LangSwitcher />
+          <ThemeToggle
+            labels={{
+              toggle: t(lang, 'theme.toggleLabel'),
+              toDark: t(lang, 'theme.switchToDark'),
+              toLight: t(lang, 'theme.switchToLight'),
+            }}
+          />
+        </div>
       </div>
     </header>
     <main class="page">
@@ -41,7 +84,9 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
     </main>
     <footer class="site-footer">
       <div class="container">
-        <p class="site-footer__text">© {new Date().getFullYear()} {siteName}</p>
+        <p class="site-footer__text">
+          © {new Date().getFullYear()} {siteName} — {t(lang, 'footer.note')}
+        </p>
       </div>
     </footer>
   </body>
@@ -56,8 +101,7 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
   .site-header__inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
+    gap: var(--space-6);
     min-height: 4rem;
   }
 
@@ -70,6 +114,34 @@ const fullTitle = title === siteName ? title : `${title} · ${siteName}`;
 
   .site-header__brand:hover {
     color: var(--accent);
+  }
+
+  .site-nav {
+    margin-inline-end: auto;
+  }
+
+  .site-nav__list {
+    display: flex;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-nav__link {
+    font-size: var(--text-sm);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .site-nav__link:hover {
+    color: var(--fg);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
   }
 
   .site-footer {

@@ -4,7 +4,14 @@
  * page never flashes the wrong theme. `is:inline` keeps it out of the
  * bundler and in <head> exactly where it is written.
  *
- * Resolution order: stored preference -> OS preference -> dark (default).
+ * Resolution order, matching the spec exactly:
+ *   1. `localStorage.theme` — an explicit choice the visitor made earlier
+ *   2. `prefers-color-scheme` — the OS preference
+ *   3. `'dark'` — the fallback when the OS expresses no preference
+ *
+ * Dark is the *default*, not an override: a visitor whose OS asks for light
+ * gets light. `<html data-theme="dark">` is baked into the markup, so for the
+ * common dark case this script changes nothing at all.
  */
 const THEME_SCRIPT = `
 (function () {
@@ -12,9 +19,19 @@ const THEME_SCRIPT = `
   var root = document.documentElement;
   var stored = null;
   try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
-  var theme = stored === 'light' || stored === 'dark'
-    ? stored
-    : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+
+  var theme;
+  if (stored === 'light' || stored === 'dark') {
+    theme = stored;
+  } else if (
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: light)').matches
+  ) {
+    theme = 'light';
+  } else {
+    theme = 'dark';
+  }
+
   root.dataset.theme = theme;
   root.style.colorScheme = theme;
 })();

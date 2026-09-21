@@ -1,0 +1,93 @@
+---
+import { getLangFromUrl, localizePath } from '@/i18n/utils';
+import { languages, locales, type Lang } from '@/i18n/ui';
+
+/**
+ * Links to *this same page* in every other locale, so switching language keeps
+ * the visitor where they are instead of dumping them on the home page.
+ * With `prefixDefaultLocale: true` every URL has a locale segment, so the swap
+ * is a straight path rewrite.
+ *
+ * Query string and fragment cannot be baked into the static HTML: the page is
+ * prerendered once at build time, where `Astro.url` carries no request query.
+ * A tiny inline script appends the visitor's current `location.search` and
+ * `location.hash` to these links in the browser, which keeps `?tag=x#top`
+ * alive across a language switch. The server-rendered href stays correct for
+ * crawlers and for visitors without JS.
+ */
+const current: Lang = getLangFromUrl(Astro.url);
+const targets = locales
+  .filter((locale) => locale !== current)
+  .map((locale) => ({
+    locale,
+    label: languages[locale],
+    href: localizePath(Astro.url.pathname, locale),
+  }));
+---
+
+<nav class="lang-switcher" aria-label="Language">
+  <ul class="lang-switcher__list">
+    {
+      targets.map((target) => (
+        <li>
+          <a
+            class="lang-switcher__link"
+            href={target.href}
+            hreflang={target.locale}
+            lang={target.locale}
+            rel="alternate"
+          >
+            {target.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<script>
+  // Carry the current query string and fragment onto the language links.
+  // Done here rather than in the template because these pages are static:
+  // there is no request-time URL to read during the build.
+  const suffix = `${window.location.search}${window.location.hash}`;
+
+  if (suffix) {
+    for (const link of document.querySelectorAll<HTMLAnchorElement>(
+      '.lang-switcher__link',
+    )) {
+      // Read/write the attribute rather than the `pathname` property, so the
+      // href stays site-relative instead of being expanded to an absolute URL.
+      const href = link.getAttribute('href');
+      if (href) {
+        link.setAttribute('href', href + suffix);
+      }
+    }
+  }
+</script>
+
+<style>
+  .lang-switcher__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lang-switcher__link {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .lang-switcher__link:hover {
+    color: var(--fg);
+    border-color: var(--border-strong);
+  }
+</style>

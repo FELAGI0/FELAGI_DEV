@@ -1,0 +1,23 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { locales, type Lang } from '@/i18n/ui';
+import { t } from '@/i18n/utils';
+
+export const getStaticPaths = (() =>
+  locales.map((lang) => ({ params: { lang } }))) satisfies GetStaticPaths;
+
+const { lang } = Astro.params as { lang: Lang };
+---
+
+<BaseLayout lang={lang} title={t(lang, 'projects.title')}>
+  <h1>{t(lang, 'projects.title')}</h1>
+  <p class="lede">{t(lang, 'projects.intro')}</p>
+</BaseLayout>
+
+<style>
+  .lede {
+    max-width: 60ch;
+    font-size: var(--text-lg);
+  }
+</style>
