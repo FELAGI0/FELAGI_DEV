@@ -17,6 +17,7 @@ import Marquee from '@/components/Marquee.astro';
 import PrincipleItem from '@/components/PrincipleItem.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 import Section from '@/components/Section.astro';
+import SectionNav from '@/components/SectionNav.astro';
 import SkillCard from '@/components/SkillCard.astro';
 import Terminal from '@/components/Terminal.astro';
 import { CONTACTS, OWNER_HANDLE, SKILL_GROUPS, STACK } from '@/consts';
@@ -41,102 +42,154 @@ const principleKeys: UIKey[] = [
   'principles.4',
 ];
 
+/**
+ * Sections listed in the sticky in-page navigation, in page order.
+ *
+ * Skills and Contacts are `<Section>` wrappers while About and Principles are
+ * hand-written (they need the split markup), so the list is declared here rather
+ * than derived from the DOM — one obvious place that decides the nav's contents.
+ */
+const sectionNavItems: { id: string; key: UIKey }[] = [
+  { id: 'about', key: 'nav.home' },
+  { id: 'principles', key: 'principles.title' },
+  { id: 'skills', key: 'skills.title' },
+  { id: 'contacts', key: 'contacts.title' },
+];
+
 const projectsHref = `/${lang}/projects/`;
 ---
 
-<BaseLayout lang={lang} title="FELAGI_DEV">
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero__body">
-      <p class="hero__name">
-        {t(lang, 'home.name')} · <span class="hero__handle">{OWNER_HANDLE}</span>
+<BaseLayout lang={lang} title="FELAGI_DEV" bleed>
+  <div class="container">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero__body">
+        <p class="hero__name">
+          {t(lang, 'home.name')} · <span class="hero__handle">{OWNER_HANDLE}</span>
+        </p>
+        <h1 class="hero__role">{t(lang, 'home.role')}</h1>
+        <p class="hero__stack">{STACK.slice(0, 3).join(' · ')}</p>
+        <p class="hero__tagline">{t(lang, 'home.tagline')}</p>
+        <a class="hero__cta" href={projectsHref}>{t(lang, 'projects.title')}</a>
+      </div>
+      <div class="hero__mark">
+        <Terminal />
+      </div>
+    </div>
+
+    <!-- Stack marquee -->
+    <div class="marquee-wrap">
+      <Marquee />
+    </div>
+  </div>
+
+  <!--
+    Selected projects: a full-bleed band.
+    The section spans the viewport (the layout's bleed mode hands us the
+    undivided <main>), while its contents stay on the same 1360px grid as
+    everything else by sitting in a `.container` of their own. A slightly
+    lighter background separates it from the hero above and the sections below
+    without a second border.
+  -->
+  <section class="band" id="projects" aria-labelledby="projects-title">
+    <div class="container">
+      <h2 class="section__title" id="projects-title">
+        {t(lang, 'home.selected.title')}
+      </h2>
+
+      {
+        featured.length > 0 ? (
+          <ul class="project-list">
+            {featured.map((project) => (
+              <ProjectCard project={project} />
+            ))}
+          </ul>
+        ) : (
+          <p>{t(lang, 'projects.empty')}</p>
+        )
+      }
+
+      <p class="section-more">
+        <a href={projectsHref}>{t(lang, 'home.selected.all')} →</a>
       </p>
-      <h1 class="hero__role">{t(lang, 'home.role')}</h1>
-      <p class="hero__stack">{STACK.slice(0, 3).join(' · ')}</p>
-      <p class="hero__tagline">{t(lang, 'home.tagline')}</p>
-      <a class="hero__cta" href={projectsHref}>{t(lang, 'projects.title')}</a>
-    </div>
-    <div class="hero__mark">
-      <Terminal />
-    </div>
-  </div>
-
-  <!-- Stack marquee -->
-  <div class="marquee-wrap">
-    <Marquee />
-  </div>
-
-  <!-- Selected projects -->
-  <Section id="projects" title={t(lang, 'home.selected.title')}>
-    {
-      featured.length > 0 ? (
-        <ul class="project-list">
-          {featured.map((project) => (
-            <ProjectCard project={project} />
-          ))}
-        </ul>
-      ) : (
-        <p>{t(lang, 'projects.empty')}</p>
-      )
-    }
-    <p class="section-more">
-      <a href={projectsHref}>{t(lang, 'home.selected.all')} →</a>
-    </p>
-  </Section>
-
-  <!-- About: two columns, sticky heading on the left -->
-  <section class="section split" id="about" aria-labelledby="about-title">
-    <h2 class="section__title split__title" id="about-title">
-      {t(lang, 'nav.home')}
-    </h2>
-    <div class="split__body">
-      <p>{t(lang, 'about.p1')}</p>
-      <p>{t(lang, 'about.p2')}</p>
     </div>
   </section>
 
-  <!-- Principles: same two-column shape -->
-  <section class="section split" id="principles" aria-labelledby="principles-title">
-    <h2 class="section__title split__title" id="principles-title">
-      {t(lang, 'principles.title')}
-    </h2>
-    <div class="split__body">
-      <ol class="principles">
-        {
-          principleKeys.map((key, i) => (
-            <PrincipleItem index={i + 1} text={t(lang, key)} />
-          ))
-        }
-      </ol>
+  <div class="container">
+    <!--
+      One sticky navigator for the four sections below it.
+
+      The nav lives in the grid's left column and the four sections stack in the
+      right column, so a single sticky element stays in view across all of them.
+      Rendering the nav once per section instead would put four copies of the
+      same four links in the document, and the active state would then have to be
+      applied to all four at once — four elements to keep in sync where one
+      suffices.
+    -->
+    <div class="section-grid">
+      <SectionNav lang={lang} items={sectionNavItems} />
+
+      <div class="section-grid__content">
+        <!-- About: two columns, sticky heading on the left -->
+        <section class="section split" id="about" aria-labelledby="about-title">
+          <h2 class="section__title split__title" id="about-title">
+            {t(lang, 'nav.home')}
+          </h2>
+          <div class="split__body">
+            <p class="lead">{t(lang, 'about.p1')}</p>
+            <p class="lead">{t(lang, 'about.p2')}</p>
+          </div>
+        </section>
+
+        <!-- Principles: same two-column shape -->
+        <section
+          class="section split"
+          id="principles"
+          aria-labelledby="principles-title"
+        >
+          <h2 class="section__title split__title" id="principles-title">
+            {t(lang, 'principles.title')}
+          </h2>
+          <div class="split__body">
+            <ol class="principles">
+              {
+                principleKeys.map((key, i) => (
+                  <PrincipleItem index={i + 1} text={t(lang, key)} />
+                ))
+              }
+            </ol>
+          </div>
+        </section>
+
+        <!-- Skills -->
+        <Section id="skills" title={t(lang, 'skills.title')}>
+          <ul class="skills">
+            {
+              SKILL_GROUPS.map((group) => (
+                <SkillCard lang={lang} labelKey={group.labelKey} items={group.items} />
+              ))
+            }
+          </ul>
+        </Section>
+
+        <!-- Contacts -->
+        <Section id="contacts" title={t(lang, 'contacts.title')}>
+          <p>{t(lang, 'contacts.note')}</p>
+          <ul class="contacts">
+            {
+              CONTACTS.map((contact) => (
+                <li class="contacts__item">
+                  <a class="contacts__link" href={contact.href}>
+                    {contact.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </Section>
+      </div>
     </div>
-  </section>
-
-  <!-- Skills -->
-  <Section id="skills" title={t(lang, 'skills.title')}>
-    <ul class="skills">
-      {
-        SKILL_GROUPS.map((group) => (
-          <SkillCard lang={lang} labelKey={group.labelKey} items={group.items} />
-        ))
-      }
-    </ul>
-  </Section>
-
-  <!-- Contacts -->
-  <Section id="contacts" title={t(lang, 'contacts.title')}>
-    <p>{t(lang, 'contacts.note')}</p>
-    <ul class="contacts">
-      {
-        CONTACTS.map((contact) => (
-          <li class="contacts__item">
-            <a class="contacts__link" href={contact.href}>
-              {contact.label}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </Section>
+  </div>
 </BaseLayout>
 
 <style>
@@ -195,6 +248,15 @@ const projectsHref = `/${lang}/projects/`;
   .hero__tagline {
     max-width: 55ch;
     margin-bottom: var(--space-6);
+    /*
+     * Left at 18px, not the 17px the CP4c3 note asked for.
+     *
+     * The note assumed this line was 1rem; it has been `--text-lg` (18px) since
+     * CP4a. Forcing 17px would have *shrunk* it, against that block's own goal
+     * of making type larger — and it would have put the tagline at exactly the
+     * same size as the About paragraphs, flattening the step between the hero's
+     * summary line and body copy. Kept one step above `--text-lead`.
+     */
     font-size: var(--text-lg);
     color: var(--fg);
   }
@@ -261,6 +323,57 @@ const projectsHref = `/${lang}/projects/`;
   }
 
   /*
+   * Two cards side by side from 1280px up.
+   *
+   * The band is full-bleed, so at that width each card gets roughly 640px —
+   * enough that the summary sits on two lines instead of four. Below 1280px a
+   * single column is kept: two ~470px columns would wrap the summary into a
+   * paragraph too narrow to scan.
+   */
+  @media (min-width: 80rem) {
+    .project-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  /*
+   * Full-bleed band for Selected projects.
+   *
+   * The layout's `bleed` mode removes the outer container, so this section spans
+   * the viewport while its own `.container` keeps the contents aligned to the
+   * same 1360px grid as every other section. `--bg-subtle` lifts it off the page
+   * background, which separates it from the hero above and the sections below
+   * without adding a border.
+   */
+  .band {
+    padding-block: var(--space-16);
+    background-color: var(--bg-subtle);
+    border-block: 1px solid var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .band {
+      padding-block: var(--space-24);
+    }
+  }
+
+  /*
+   * Sticky navigator beside the four lower sections.
+   *
+   * Below 1024px this is a single column and `SectionNav` hides itself, so the
+   * markup order — nav first — stays the same at every width instead of being
+   * duplicated or reordered per breakpoint.
+   */
+  @media (min-width: 64rem) {
+    .section-grid {
+      display: grid;
+      grid-template-columns: 12.5rem 1fr; /* 200px | content */
+      gap: var(--space-12);
+      align-items: start;
+    }
+  }
+
+  /*
    * Two-column section: heading left, content right.
    *
    * Columns are `auto` + `1fr` rather than fixed fractions, so the heading takes
@@ -284,6 +397,24 @@ const projectsHref = `/${lang}/projects/`;
       position: sticky;
       top: var(--space-8);
       margin-bottom: 0;
+    }
+  }
+
+  /*
+   * From 1024px the outer navigator already names the current section, so the
+   * inner sticky heading would be a third narrow column repeating what the
+   * navigator says — roughly half the content width spent on two columns of
+   * near-empty text. The split collapses to a single column here and the heading
+   * returns to normal flow, directly above its body.
+   */
+  @media (min-width: 64rem) {
+    .section-grid .split {
+      display: block;
+    }
+
+    .section-grid .split__title {
+      position: static;
+      margin-bottom: var(--space-6);
     }
   }
 

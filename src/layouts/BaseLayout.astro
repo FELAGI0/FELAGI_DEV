@@ -17,9 +17,21 @@ interface Props {
   title: string;
   /** Meta description for search engines and social previews. */
   description?: string;
+  /**
+   * Skip the standard centred container wrapper.
+   *
+   * Opt-in for pages that need an element spanning the full viewport width. The
+   * alternative — a child breaking out with `100vw` and a negative margin —
+   * either overflows by the scrollbar's width on desktop or, if contained with
+   * `overflow: hidden`, silently kills every `position: sticky` inside it. So
+   * the page that wants a full-bleed band takes over its own wrapping and adds
+   * `.container` per section. Default stays `false` so existing pages are
+   * untouched.
+   */
+  bleed?: boolean;
 }
 
-const { lang, title, description = SITE_DESCRIPTION } = Astro.props;
+const { lang, title, description = SITE_DESCRIPTION, bleed = false } = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
 
@@ -102,9 +114,15 @@ const nav: { key: UIKey; href: string }[] = [
       </div>
     </header>
     <main class="page">
-      <div class="container">
-        <slot />
-      </div>
+      {
+        bleed ? (
+          <slot />
+        ) : (
+          <div class="container">
+            <slot />
+          </div>
+        )
+      }
     </main>
     <Footer lang={lang} />
   </body>

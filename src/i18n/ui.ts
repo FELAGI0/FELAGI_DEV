@@ -13,6 +13,7 @@
 const en = {
   'nav.home': 'About',
   'nav.projects': 'Projects',
+  'nav.sectionsLabel': 'Page sections',
   'lang.switchLabel': 'Switch language',
   'theme.toggleLabel': 'Toggle color theme',
   'theme.switchToDark': 'Switch to dark theme',
@@ -74,6 +75,7 @@ export type UIKey = keyof typeof en;
 const ru: Record<UIKey, string> = {
   'nav.home': 'Обо мне',
   'nav.projects': 'Проекты',
+  'nav.sectionsLabel': 'Разделы страницы',
   'lang.switchLabel': 'Переключить язык',
   'theme.toggleLabel': 'Переключить тему',
   'theme.switchToDark': 'Включить тёмную тему',

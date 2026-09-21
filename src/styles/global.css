@@ -9,6 +9,12 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /*
+   * In-page anchors (the sticky navigator, section links) would otherwise land
+   * with the heading hidden behind the sticky header — it is 4rem tall. This
+   * offsets every anchor jump and `scrollIntoView` by a little more than that.
+   */
+  scroll-padding-top: 5.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -83,12 +89,27 @@ h4 {
   line-height: var(--leading-tight);
 }
 
-/* Brief §3: body 1rem/1.6, muted 0.9375rem/1.6. */
+/*
+ * Body copy: 1rem with 1.7 leading.
+ *
+ * 16px is the brief's baseline, and at that size 1.6 leading crowds long
+ * paragraphs — About runs to several lines, so the extra tenth is what keeps it
+ * readable rather than merely larger.
+ */
 p {
   margin: 0 0 var(--space-4);
   font-size: var(--text-muted);
   line-height: var(--leading-normal);
   color: var(--fg-muted);
+}
+
+/*
+ * Lead paragraphs — the ones that open a section and carry its argument
+ * (currently About). A step above body copy, below a heading.
+ */
+.lead {
+  font-size: var(--text-lead);
+  color: var(--fg);
 }
 
 a {

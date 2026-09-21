@@ -1,0 +1,239 @@
+---
+/**
+ * Sticky in-page navigation for the home page's sections.
+ *
+ * Lists the four sections below the fold as numbered links and highlights the
+ * one currently in view. Two things make it worth a component rather than a few
+ * lines of markup:
+ *
+ * 1. The active item is decided by an `IntersectionObserver`, not by scroll
+ *    position arithmetic. Arithmetic against `scrollY` breaks whenever a
+ *    section changes height or a heading wraps differently per language, and it
+ *    also has to guess how much of a section counts as "current".
+ *
+ * 2. The links are real anchors. JavaScript only adds the highlight; with
+ *    scripting off, the list still navigates, because the targets are section
+ *    ids that exist in the markup either way.
+ *
+ * Hidden below 1024px: on a narrow screen the column of links would cost more
+ * width than it earns, and the sections are a short scroll apart anyway.
+ */
+import { t } from '@/i18n/utils';
+import type { Lang, UIKey } from '@/i18n/ui';
+
+interface Props {
+  /** Locale for the aria-label and the link texts. */
+  lang: Lang;
+  /** Sections to list, in page order. */
+  items: { id: string; key: UIKey }[];
+}
+
+const { lang, items } = Astro.props;
+---
+
+<nav class="section-nav" aria-label={t(lang, 'nav.sectionsLabel')}>
+  <ol class="section-nav__list">
+    {
+      items.map((item, i) => (
+        <li class="section-nav__item">
+          <a class="section-nav__link" href={`#${item.id}`} data-section-nav={`#${item.id}`}>
+            <span class="section-nav__index">{String(i + 1).padStart(2, '0')}</span>
+            <span class="section-nav__label">{t(lang, item.key)}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<script>
+  /*
+   * Highlight the section currently in view.
+   *
+   * Built imperatively rather than with a framework: the page ships no client
+   * framework, and this needs one observer and one re-render of a class name.
+   *
+   * Root margin trick: the observer's viewport is shrunk to a band across the
+   * upper-middle of the screen (`-96px` top, `-55%` bottom). A section counts as
+   * "current" once its top passes under the sticky header and while its body
+   * still occupies that band. Without such a band, tall sections report as
+   * intersecting for their whole height and the highlight turns ambiguous when
+   * two of them are visible at once.
+   */
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>('[data-section-nav]'),
+  );
+
+  if (links.length > 0) {
+    const byId = new Map<string, HTMLAnchorElement>();
+    for (const link of links) {
+      const id = link.dataset.sectionNav?.slice(1);
+      if (id) byId.set(id, link);
+    }
+
+    const sections = [...byId.keys()]
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+
+    let currentId: string | null = null;
+
+    const setActive = (id: string | null) => {
+      // Skip the DOM work when nothing changed — the scroll listener fires far
+      // more often than the active section actually changes.
+      if (id === currentId) return;
+      currentId = id;
+
+      for (const [key, link] of byId) {
+        const active = key === id;
+        link.classList.toggle('is-active', active);
+        // `aria-current` is what conveys "you are here" to assistive tech; the
+        // colour alone would not.
+        if (active) {
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      }
+    };
+
+    // Track ratios for every section and let the most-visible one win. This
+    // avoids a flicker when two sections are on screen at once, which a
+    // "last one to intersect" rule would produce at every boundary.
+    const ratios = new Map<string, number>();
+
+    const pickActive = () => {
+      /*
+       * The last section needs a special case, because it can never win on its
+       * own: once the page is scrolled to the bottom there is nothing left to
+       * scroll, so the final section's top stays below the observer band and it
+       * reports a smaller share of itself inside the band than its taller
+       * neighbour does. Measured here, Contacts peaked at a 0.15 ratio against
+       * Skills' 0.50 at maximum scroll — meaning the last item in the navigator
+       * could never light up, which reads as a broken control.
+       *
+       * So: reaching the bottom of the page means the last section is current.
+       */
+      const atBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+
+      if (atBottom && sections.length > 0) {
+        setActive(sections[sections.length - 1]?.id ?? null);
+        return;
+      }
+
+      let best: string | null = null;
+      let bestRatio = 0;
+      for (const [id, ratio] of ratios) {
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          best = id;
+        }
+      }
+      setActive(best);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          ratios.set(entry.target.id, entry.isIntersecting ? entry.intersectionRatio : 0);
+        }
+        pickActive();
+      },
+      {
+        rootMargin: '-96px 0px -55% 0px',
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+      },
+    );
+
+    for (const section of sections) observer.observe(section);
+
+    // Needed only so the bottom-of-page case above is noticed: the observer
+    // fires on geometry changes, not on "the user has run out of page".
+    // Coalesced into one call per frame so a fast scroll does not queue up
+    // layout reads.
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          pickActive();
+        });
+      },
+      { passive: true },
+    );
+  }
+</script>
+
+<style>
+  .section-nav {
+    display: none;
+  }
+
+  /*
+   * Only from 1024px up. Below that the content column is narrow enough that
+   * the links would either wrap or squeeze the text they sit beside.
+   */
+  @media (min-width: 64rem) {
+    .section-nav {
+      display: block;
+      position: sticky;
+      /* Clears the sticky header (4rem tall) plus a little breathing room. */
+      top: 6rem;
+      align-self: start;
+    }
+  }
+
+  .section-nav__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .section-nav__item + .section-nav__item {
+    margin-top: var(--space-2);
+  }
+
+  .section-nav__link {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-1) 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-chip);
+    color: var(--fg-subtle);
+    text-decoration: none;
+  }
+
+  /*
+   * Active state is carried by colour *and* weight, not colour alone: a
+   * colour-only cue is easy to miss, and for anyone who cannot distinguish the
+   * accent from the muted grey it would be no cue at all.
+   */
+  .section-nav__link.is-active {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .section-nav__link:hover {
+    color: var(--fg-muted);
+  }
+
+  .section-nav__link.is-active:hover {
+    color: var(--accent);
+  }
+
+  .section-nav__index {
+    /* Fixed width so the labels line up regardless of the number's digits. */
+    min-width: 1.5em;
+    color: inherit;
+    opacity: 0.6;
+  }
+
+  .section-nav__label {
+    /* Fits "Разделы страницы" / "Infrastructure" without wrapping. */
+    max-width: 12ch;
+  }
+</style>

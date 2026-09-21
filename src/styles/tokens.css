@@ -60,9 +60,10 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular,
     Consolas, monospace;
 
-  /* Brief §3 sizes. */
+  /* Type scale. */
   --text-chip: 0.8125rem; /* 13px — chips */
-  --text-muted: 0.9375rem; /* 15px — muted body copy */
+  --text-muted: 1rem; /* 16px — body copy */
+  --text-lead: 1.0625rem; /* 17px — About and other lead paragraphs */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem; /* body */
@@ -73,7 +74,7 @@
 
   --leading-hero: 1.05; /* brief §3: hero h1 */
   --leading-heading: 1.15; /* brief §3: section h2 */
-  --leading-normal: 1.6; /* brief §3: body */
+  --leading-normal: 1.7; /* body copy: 16px text needs more than 1.6 to breathe */
   --leading-tight: 1.2;
 
   --tracking-tight: -0.02em; /* brief §3: hero h1 */
@@ -96,8 +97,8 @@
   --radius-lg: 12px;
   --radius-full: 999px;
 
-  /* Container — 1280px content width, 24px side padding. */
-  --container: 80rem;
+  /* Container — 1360px content width, 24px side padding. */
+  --container: 85rem;
   --gutter: var(--space-6);
 
   --transition: 150ms ease;
