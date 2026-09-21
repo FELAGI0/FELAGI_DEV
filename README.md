@@ -12,26 +12,47 @@ No backend: content lives in the repository, the build produces plain HTML.
 
 ## Requirements
 
-- Node **>= 22.22.2** (see `.nvmrc`, `engines`)
+- Node **>= 22.22.0** (see `.nvmrc`, `engines`)
 - pnpm **>= 10**
 
-### Why 22.22.2 and not an older 22.x
+### Why 22.22.0
 
-The floor is set by the dependency tree, not by preference. Two engines in the
-graph raise it above the usual "22 LTS" minimum:
+The floor comes from the dependency tree, not from preference. The strictest
+`engines.node` among our actual dependencies is:
 
 | Package | Requires |
 | --- | --- |
 | `undici@8.10.2` | `node >= 22.19.0` |
-| `corepack@0.36.0` | `node ^22.22.2 \|\| ^24.15.0 \|\| >=26.0.0` |
 
-`corepack` is the stricter of the two, so **22.22.2** is the real minimum.
-Lowering it makes `pnpm install` fail with `ERR_PNPM_UNSUPPORTED_ENGINE` — this
-is exactly what broke the first Cloudflare Pages build, which ran with
-`NODE_VERSION=22.12.0`. The GitHub-visible source of truth is
-`package.json#engines` plus `.nvmrc`; the Cloudflare build needs its own
-`NODE_VERSION=22.22.2` variable set to match, since it reads the environment,
-not `.nvmrc`.
+Everything else sits lower (`astro@7.3.3` → `>=22.12.0`, `vite@8.3.0` →
+`^20.19.0 || >=22.12.0`). A scan of all 226 installed packages found nothing
+demanding more than `22.19.0`, so **22.22.0** is comfortably above the real
+requirement.
+
+Two things this number is *not*:
+
+- It is not dictated by `corepack`. Corepack is a tool bundled with Node, not a
+  dependency of this project — `corepack@0.36.0` does declare
+  `^22.22.2 || ^24.15.0 || >=26.0.0`, but that constrains the Node the Corepack
+  shim runs under, and it does not appear anywhere in `pnpm-lock.yaml`. It is
+  not what breaks an install here.
+- It is not a hard pin. The floor is deliberately set to `22.22.0` rather than
+  `22.22.2` so it cannot fail against Cloudflare Pages. Cloudflare resolves the
+  `22.x` line from its own build-image table and ignores `.nvmrc`; if it hands
+  the build `22.22.0`, a `>=22.22.2` floor would reject a Node that is in fact
+  perfectly capable of running this project, and the build would fail with
+  `ERR_PNPM_UNSUPPORTED_ENGINE`.
+
+That last failure is real history: the first Cloudflare Pages build died on
+`NODE_VERSION=22.12.0`, because `undici@8.10.2` needs `>=22.19.0`. The fix at
+the time was an exact `NODE_VERSION=22.22.2` pin in the Pages project settings,
+which works but leaves the build fragile — it depends on that one value staying
+set. Relaxing the floor to `22.22.0` means the repository itself no longer
+rejects what Cloudflare is likely to provide.
+
+`package.json#engines` plus `.nvmrc` are the source of truth visible in Git.
+Cloudflare reads its own `NODE_VERSION` environment variable, not `.nvmrc`, so
+that variable still needs to be set to a 22.x version at or above `22.22.0`.
 
 ### Enable pnpm once
 
