@@ -17,7 +17,6 @@ import Marquee from '@/components/Marquee.astro';
 import PrincipleItem from '@/components/PrincipleItem.astro';
 import ProjectCard from '@/components/ProjectCard.astro';
 import Section from '@/components/Section.astro';
-import SectionNav from '@/components/SectionNav.astro';
 import SkillCard from '@/components/SkillCard.astro';
 import Terminal from '@/components/Terminal.astro';
 import { CONTACTS, OWNER_HANDLE, SKILL_GROUPS, STACK } from '@/consts';
@@ -42,21 +41,17 @@ const principleKeys: UIKey[] = [
   'principles.4',
 ];
 
-/**
- * Sections listed in the sticky in-page navigation, in page order.
- *
- * Skills and Contacts are `<Section>` wrappers while About and Principles are
- * hand-written (they need the split markup), so the list is declared here rather
- * than derived from the DOM — one obvious place that decides the nav's contents.
- */
-const sectionNavItems: { id: string; key: UIKey }[] = [
-  { id: 'about', key: 'nav.home' },
-  { id: 'principles', key: 'principles.title' },
-  { id: 'skills', key: 'skills.title' },
-  { id: 'contacts', key: 'contacts.title' },
-];
-
 const projectsHref = `/${lang}/projects/`;
+
+/**
+ * The hero's role line, split into words so each can animate in on its own.
+ *
+ * Split at build time rather than in the browser: the words are plain text in
+ * the HTML, so they are readable (and indexable) before any script runs — a
+ * client-side split would leave the heading empty until hydration. The reveal
+ * itself is a CSS animation, so no JavaScript is involved at all.
+ */
+const roleWords = t(lang, 'home.role').split(' ');
 ---
 
 <BaseLayout lang={lang} title="FELAGI_DEV" bleed>
@@ -67,7 +62,16 @@ const projectsHref = `/${lang}/projects/`;
         <p class="hero__name">
           {t(lang, 'home.name')} · <span class="hero__handle">{OWNER_HANDLE}</span>
         </p>
-        <h1 class="hero__role">{t(lang, 'home.role')}</h1>
+        <h1 class="hero__role">
+          {
+            roleWords.map((word, i) => (
+              <>
+                <span class="hero__word" style={`--word-index: ${i}`}>{word}</span>
+                {i < roleWords.length - 1 ? ' ' : ''}
+              </>
+            ))
+          }
+        </h1>
         <p class="hero__stack">{STACK.slice(0, 3).join(' · ')}</p>
         <p class="hero__tagline">{t(lang, 'home.tagline')}</p>
         <a class="hero__cta" href={projectsHref}>{t(lang, 'projects.title')}</a>
@@ -119,20 +123,12 @@ const projectsHref = `/${lang}/projects/`;
   </section>
 
   <!--
-    One navigator for the four sections below it.
-
-    It is `position: fixed` against the left screen edge (see SectionNav), so it
-    sits outside this container and takes no space in the layout — the sections
-    keep the full container width. It is rendered here, next to the content it
-    describes, rather than at the top of the document, so the markup order still
-    reads as "this list, then these sections".
-
-    It is hidden below 2000px, where the centred container would otherwise reach
-    into it.
+    The four sections below the fold, each wrapped in `<Section>` or written by
+    hand (About and Principles need the two-column split markup). The `.sections`
+    wrapper exists only to scope the split's desktop collapse — see the style
+    block at the bottom of this file.
   -->
-  <SectionNav lang={lang} items={sectionNavItems} />
-
-  <div class="container sections-with-nav">
+  <div class="container sections">
     <!-- About: two columns, sticky heading on the left -->
     <section class="section split" id="about" aria-labelledby="about-title">
       <h2 class="section__title split__title" id="about-title">
@@ -191,7 +187,180 @@ const projectsHref = `/${lang}/projects/`;
       </ul>
     </Section>
   </div>
+
+  <!--
+    Show the sections already on screen before first paint.
+
+    The reveal CSS hides every unit from first paint, but the motion script
+    below is a bundled (deferred) module and may run after the browser has
+    painted — which would flash an empty first screen before the module reveals
+    what is already in view. An inline script runs during parsing, before paint,
+    so the first screen is simply present. It needs no unit list: adding
+    `is-revealed` to the section flips every unit through the CSS alone, and
+    `data-reveal-instant` drops the transition so nothing animates on load.
+
+    The module repeats this (idempotently) so it also holds after a
+    ClientRouter navigation, where this inline script may not re-run.
+  -->
+  <script is:inline>
+    (function () {
+      if (document.documentElement.dataset.motion !== 'ok') return;
+      var line = window.innerHeight * 0.85;
+      var sections = document.querySelectorAll('.section, .band');
+      for (var i = 0; i < sections.length; i++) {
+        if (sections[i].getBoundingClientRect().top < line) {
+          sections[i].dataset.revealInstant = '';
+          sections[i].classList.add('is-revealed');
+        }
+      }
+    })();
+  </script>
+
+  <!--
+    Cursor spotlight (CP4b): a decorative layer whose gradient follows the
+    pointer. Empty and inert by default — see `.spotlight` below and the script
+    at the end of the file. `aria-hidden` because it carries no information.
+  -->
+  <div class="spotlight" aria-hidden="true"></div>
 </BaseLayout>
+
+<script>
+  /*
+   * Home-page motion (CP4b), in one script with one IntersectionObserver.
+   *
+   * Both features are gated on `<html data-motion="ok">`, which the pre-paint
+   * theme script sets only when the visitor has not asked for reduced motion.
+   * With the gate off this script does nothing at all: no observer, no pointer
+   * listener. That keeps the "reduced motion ⇒ static page" promise in one
+   * place (the gate) rather than spread across a media query per feature.
+   *
+   * The script is re-run on `astro:page-load` because a bundled script executes
+   * once — after a ClientRouter navigation to another page and back, the new
+   * DOM would otherwise have no observer or listener bound.
+   */
+  function setupHomeMotion(): void {
+    if (document.documentElement.dataset.motion !== 'ok') return;
+
+    /* ---- Stagger reveal, per element ---- */
+
+    /*
+     * Which elements inside a section animate, in document order. MUST mirror
+     * the selector in global.css — that rule hides exactly these, and the reveal
+     * here is what shows them again. A unit listed in the CSS but not here would
+     * stay hidden forever.
+     *
+     * Per element, not one block per section: a paras-worth of items cascading
+     * one after another is what is actually legible as motion.
+     */
+    const REVEAL_UNITS = [
+      '.section__title',
+      '.section > p',
+      '.split__body > p',
+      '.principles > li',
+      '.skills > li',
+      '.contacts > li',
+      '.project-list',
+      '.section-more',
+    ].join(',');
+
+    /** Delay between consecutive units, a little under the 550ms duration. */
+    const STAGGER_MS = 100;
+
+    const sections = document.querySelectorAll<HTMLElement>('.section, .band');
+
+    /**
+     * Write the per-unit delays and hand the section its revealed state.
+     * `instant` skips the cascade (delay 0, no transition) for a section that is
+     * already on screen when the page loads — the first screen should simply be
+     * there, not animate itself in.
+     */
+    function reveal(section: HTMLElement, instant: boolean): void {
+      const units = section.querySelectorAll<HTMLElement>(REVEAL_UNITS);
+      let i = 0;
+      for (const unit of units) {
+        unit.style.setProperty('--reveal-delay', `${instant ? 0 : i * STAGGER_MS}ms`);
+        i += 1;
+      }
+      if (instant) {
+        section.dataset.revealInstant = '';
+        section.classList.add('is-revealed');
+        return;
+      }
+      // Held to the next frame because the delays were only just written —
+      // setting them and the class in one tick can batch both into a single
+      // style recalculation, and the transition is skipped.
+      requestAnimationFrame(() => section.classList.add('is-revealed'));
+    }
+
+    /**
+     * True when the section is at or above the observer's trigger line, so the
+     * observer would fire (or has passed it) — show it at once instead of
+     * observing. Covers three cases with one test: a section in view at load, a
+     * section half in view, and a section above the viewport on a restored
+     * scroll position (which would otherwise stay hidden until scrolled back to).
+     * The line is `vh * (1 - 0.15)`, mirroring the `rootMargin` below.
+     */
+    function atOrAboveTrigger(section: HTMLElement): boolean {
+      return section.getBoundingClientRect().top < window.innerHeight * 0.85;
+    }
+
+    const revealObserver = new IntersectionObserver(
+      (entries, observer) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          reveal(entry.target as HTMLElement, false);
+          observer.unobserve(entry.target);
+        }
+      },
+      // `rootMargin` shrinks the viewport by 15% at the bottom, so a section
+      // that is merely peeking does not trigger before it is being read.
+      // `threshold: 0.15` requires a further 15% of the section itself to be
+      // inside that box, so the reveal waits until the section is genuinely on
+      // screen rather than the instant its first pixel crosses the line. The
+      // shortest section measured still reaches a 0.63 ratio inside the box at
+      // the narrowest viewport, so this threshold is always reachable.
+      { rootMargin: '0px 0px -15% 0px', threshold: 0.15 },
+    );
+
+    for (const section of sections) {
+      if (atOrAboveTrigger(section)) reveal(section, true);
+      else revealObserver.observe(section);
+    }
+
+    /* ---- Cursor spotlight ---- */
+
+    const spotlight = document.querySelector<HTMLElement>('.spotlight');
+    if (spotlight) {
+      let raf = 0;
+      let px = 0;
+      let py = 0;
+
+      function apply(): void {
+        raf = 0;
+        spotlight!.style.setProperty('--spot-x', `${px}px`);
+        spotlight!.style.setProperty('--spot-y', `${py}px`);
+        spotlight!.classList.add('is-on');
+      }
+
+      window.addEventListener(
+        'pointermove',
+        (event) => {
+          px = event.clientX;
+          py = event.clientY;
+          // Coalesce to one style write per frame — pointermove outpaces paint.
+          if (!raf) raf = requestAnimationFrame(apply);
+        },
+        { passive: true },
+      );
+    }
+  }
+
+  // Runs on first load and after every ClientRouter navigation. The reveal
+  // observer unobserves each section once revealed, and a fresh page brings
+  // fresh sections, so a new observer per call is correct and leaks nothing.
+  setupHomeMotion();
+  document.addEventListener('astro:page-load', setupHomeMotion);
+</script>
 
 <style>
   /* Hero */
@@ -342,14 +511,37 @@ const projectsHref = `/${lang}/projects/`;
    *
    * The layout's `bleed` mode removes the outer container, so this section spans
    * the viewport while its own `.container` keeps the contents aligned to the
-   * same 1360px grid as every other section. `--bg-subtle` lifts it off the page
-   * background, which separates it from the hero above and the sections below
-   * without adding a border.
+   * same 1360px grid as every other section.
+   *
+   * Depth comes from a vignette, not a flat fill: an inset shadow darkens the
+   * edges toward the page colour while the centre keeps full `--bg-subtle`, so
+   * the band reads as a lit surface. An inset shadow rather than a radial
+   * gradient because the project rules radial gradients out as a cliché.
+   *
+   * Sized in `vw`, not px: the band is full-bleed, so its width is the viewport
+   * width. A fixed 160px shadow reaches 160px in from each edge, which on a
+   * 360px phone is the whole band — the centre would never be clear, defeating
+   * the vignette. `12vw` keeps the clear centre proportional at every width.
+   *
+   * The shadow colour is a literal (a one-off) but differs per theme, because
+   * the two themes have very different tonal room:
+   *   - Dark: band #141414 (rgb 20) sits only 10 levels above the page #0a0a0a
+   *     (rgb 10). A strong black lands the edge at the page colour, so the band
+   *     dissolves into the page — the largest depth the palette allows. Measured
+   *     centre↔edge contrast 1.075 (rgb 20 → 10).
+   *   - Light: band #f5f5f5 (rgb 245) on a white page has far more room; a much
+   *     lighter black gives a clear but not muddy frame. Measured 1.415
+   *     (rgb 245 → 208).
    */
   .band {
     padding-block: var(--space-16);
     background-color: var(--bg-subtle);
+    box-shadow: inset 0 0 12vw 1.5vw rgb(0 0 0 / 0.5);
     border-block: 1px solid var(--border);
+  }
+
+  :global([data-theme='light']) .band {
+    box-shadow: inset 0 0 12vw 1.5vw rgb(0 0 0 / 0.15);
   }
 
   @media (min-width: 48rem) {
@@ -388,24 +580,18 @@ const projectsHref = `/${lang}/projects/`;
   /*
    * From 1024px the section headings move back above their bodies.
    *
-   * Previously the navigator occupied a left column from 1024px, and the split's
-   * own heading column would have been a third narrow column repeating what the
-   * navigator already said. The navigator has since moved to a fixed position
-   * against the screen edge and no longer takes a column, so that specific
-   * reason is gone — but the collapse is kept, because the content column is the
-   * container width either way and a 16rem heading column inside it would still
-   * spend a sixth of the row on a two-word heading.
-   *
-   * The class is named for what it marks — a run of sections that has a
-   * navigator — rather than for the grid it used to be, so the rule still
-   * explains itself now that the grid is gone.
+   * The split's two-column shape costs a 16rem heading column, which at this
+   * width spends a sixth of the row on a two-word heading; above the body reads
+   * better as the container-width column it is. Scoped through `.sections` so
+   * the rule targets the home page's run of sections and not the split layout
+   * anywhere else it might appear.
    */
   @media (min-width: 64rem) {
-    .sections-with-nav .split {
+    .sections .split {
       display: block;
     }
 
-    .sections-with-nav .split__title {
+    .sections .split__title {
       position: static;
       margin-bottom: var(--space-6);
     }
@@ -548,5 +734,76 @@ const projectsHref = `/${lang}/projects/`;
 
   .contacts__link:hover {
     border-color: var(--accent);
+  }
+
+  /*
+   * CP4b — hero split-text.
+   *
+   * Each word is its own inline-block so it can be transformed; the spaces
+   * between them are literal text nodes in the markup, so the line still wraps
+   * on word boundaries as normal. The animation runs once on load here, not on
+   * scroll, and is gated on `[data-motion='ok']` — with reduced motion the words
+   * are plain, static text.
+   */
+  .hero__word {
+    display: inline-block;
+  }
+
+  /*
+   * `:global()` on the ancestor is required: `data-motion` lives on `<html>`,
+   * which carries no scoping id, so a plain descendant selector would compile
+   * to `[data-astro-cid-…][data-motion='ok']…` and never match. Same pattern as
+   * the theme-scoped rules in Terminal.astro.
+   */
+  :global([data-motion='ok']) .hero__word {
+    animation: hero-word 400ms ease-out both;
+    animation-delay: calc(var(--word-index, 0) * 60ms);
+  }
+
+  @keyframes hero-word {
+    from {
+      opacity: 0;
+      transform: translateY(0.6em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /*
+   * CP4b — cursor spotlight.
+   *
+   * A fixed, full-viewport layer whose radial gradient is centred on the
+   * pointer via `--spot-x` / `--spot-y` (set by the script). It sits at
+   * `z-index: -1`, the same layer as the background grid: above the page
+   * background, below every in-flow element, so it can never sit over text.
+   * `pointer-events: none` keeps it out of the way of clicks.
+   *
+   * Radius 14rem (224px), down from 28rem (448px): at 448px the glow read as a
+   * wash over half the viewport rather than a highlight around the pointer. The
+   * gradient is opaque out to 65% (≈146px) and fades to the edge, so the visible
+   * core is roughly a 290px disc. Area drops from ~630k px² to ~158k px², about
+   * 4× less.
+   *
+   * Opacity stays 0.07 — under the 0.08 ceiling, and on its own it was not the
+   * problem, so the fix is the radius, not the alpha.
+   */
+  .spotlight {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms ease;
+    background: radial-gradient(
+      14rem circle at var(--spot-x, 50%) var(--spot-y, 40%),
+      var(--accent),
+      transparent 65%
+    );
+  }
+
+  .spotlight.is-on {
+    opacity: 0.07;
   }
 </style>

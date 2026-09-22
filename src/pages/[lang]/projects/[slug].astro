@@ -44,7 +44,17 @@ const { Content } = await render(entry);
   </p>
 
   <header class="project-header">
-    <h1>{data.title}</h1>
+    {/*
+      Morph target for the list card's title (see ProjectCard): the same
+      `transition:name`, keyed by slug, so the heading flies from the card into
+      the detail header instead of crossfading.
+    */}
+    <h1
+      transition:name={`project-title-${project.slug}`}
+      transition:animate="initial"
+    >
+      {data.title}
+    </h1>
     <p class="project-header__summary">{data.summary}</p>
 
     <ul class="stack">

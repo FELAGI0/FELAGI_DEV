@@ -31,7 +31,17 @@ const detailHref = `/${lang}/projects/${slug}/`;
 ---
 
 <li class="project-card">
-  <h2 class="project-card__title">
+  {/*
+    The title morphs into the detail page's heading. `transition:name` is keyed
+    by slug so the pair is unique on a page with several cards, and
+    `transition:animate="initial"` opts this element into Astro's morph instead
+    of the default crossfade. See the matching name on the detail page.
+  */}
+  <h2
+    class="project-card__title"
+    transition:name={`project-title-${slug}`}
+    transition:animate="initial"
+  >
     <a href={detailHref}>{data.title}</a>
   </h2>
 

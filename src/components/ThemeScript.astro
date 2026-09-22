@@ -17,23 +17,65 @@ const THEME_SCRIPT = `
 (function () {
   var KEY = 'theme';
   var root = document.documentElement;
-  var stored = null;
-  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
 
-  var theme;
-  if (stored === 'light' || stored === 'dark') {
-    theme = stored;
-  } else if (
-    window.matchMedia &&
-    window.matchMedia('(prefers-color-scheme: light)').matches
-  ) {
-    theme = 'light';
-  } else {
-    theme = 'dark';
+  function apply() {
+    var stored = null;
+    try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+
+    var theme;
+    if (stored === 'light' || stored === 'dark') {
+      theme = stored;
+    } else if (
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: light)').matches
+    ) {
+      theme = 'light';
+    } else {
+      theme = 'dark';
+    }
+
+    root.dataset.theme = theme;
+    root.style.colorScheme = theme;
+
+    /*
+     * Motion gate for CP4b animations, set here so it is known before first
+     * paint (a reveal must not flash visible-then-hidden).
+     *
+     * 'ok' only when the visitor has not asked for reduced motion. The animation
+     * rules are written as [data-motion='ok'] …, so with reduced motion — or
+     * with JS off, where this never runs — nothing is ever hidden and the page
+     * is simply static. This reuses the one pre-paint script rather than adding
+     * another prefers-reduced-motion media block.
+     */
+    var reduce = false;
+    try {
+      reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) { reduce = false; }
+    if (reduce) {
+      delete root.dataset.motion;
+    } else {
+      root.dataset.motion = 'ok';
+    }
   }
 
-  root.dataset.theme = theme;
-  root.style.colorScheme = theme;
+  apply();
+
+  /*
+   * Client-side navigations (ClientRouter) swap the document *and* reset
+   * <html>'s attributes and classes, so the theme, the motion gate and the
+   * theme-ready transition gate are all lost on every transition. Re-apply them
+   * right after the swap, before the new page paints, so none of the three
+   * flashes wrong.
+   *
+   * theme-ready is re-added here rather than inside apply() because on the
+   * initial load apply() runs before first paint, where the class must still be
+   * absent — that is exactly what READY_SCRIPT below defers with a rAF. By an
+   * after-swap there has already been a paint, so adding it immediately is right.
+   */
+  document.addEventListener('astro:after-swap', function () {
+    apply();
+    root.classList.add('theme-ready');
+  });
 })();
 `;
 

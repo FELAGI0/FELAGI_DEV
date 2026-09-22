@@ -47,8 +47,6 @@ const { labels } = Astro.props;
 <script>
   const STORAGE_KEY = 'theme';
   const root = document.documentElement;
-  const button = document.getElementById('theme-toggle');
-  const label = document.getElementById('theme-toggle-label');
 
   type Theme = 'dark' | 'light';
 
@@ -56,32 +54,52 @@ const { labels } = Astro.props;
     return root.dataset.theme === 'light' ? 'light' : 'dark';
   }
 
-  function sync(theme: Theme): void {
-    root.dataset.theme = theme;
-    root.style.colorScheme = theme;
+  /*
+   * Reads the button out of the DOM on each call rather than closing over it:
+   * with ClientRouter a navigation replaces the header, so a reference captured
+   * once would point at a detached node. `astro:page-load` re-runs this after
+   * every navigation (and on the first load), re-binding to the current button.
+   */
+  function setup(): void {
+    const button = document.getElementById('theme-toggle');
+    const label = document.getElementById('theme-toggle-label');
     if (!button) return;
 
-    button.setAttribute('aria-pressed', String(theme === 'light'));
-    const nextLabel =
-      theme === 'light'
-        ? button.dataset.themeToDark
-        : button.dataset.themeToLight;
-    if (label && nextLabel) {
-      label.textContent = nextLabel;
+    // The immediate call and the first `astro:page-load` both fire on load;
+    // without this guard the button would get two click listeners and a click
+    // would toggle the theme twice, i.e. not at all. A later navigation brings
+    // a fresh button element, whose marker is absent again.
+    if (button.dataset.bound === 'true') return;
+    button.dataset.bound = 'true';
+
+    function sync(theme: Theme): void {
+      root.dataset.theme = theme;
+      root.style.colorScheme = theme;
+      button!.setAttribute('aria-pressed', String(theme === 'light'));
+      const nextLabel =
+        theme === 'light'
+          ? button!.dataset.themeToDark
+          : button!.dataset.themeToLight;
+      if (label && nextLabel) {
+        label.textContent = nextLabel;
+      }
     }
+
+    sync(currentTheme());
+
+    button.addEventListener('click', () => {
+      const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
+      sync(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        /* storage unavailable (private mode) — the choice stays session-only */
+      }
+    });
   }
 
-  sync(currentTheme());
-
-  button?.addEventListener('click', () => {
-    const next: Theme = currentTheme() === 'dark' ? 'light' : 'dark';
-    sync(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      /* storage unavailable (private mode) — the choice stays session-only */
-    }
-  });
+  setup();
+  document.addEventListener('astro:page-load', setup);
 </script>
 
 <style>

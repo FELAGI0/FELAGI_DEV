@@ -46,23 +46,38 @@ const targets = locales
 </nav>
 
 <script>
-  // Carry the current query string and fragment onto the language links.
-  // Done here rather than in the template because these pages are static:
-  // there is no request-time URL to read during the build.
-  const suffix = `${window.location.search}${window.location.hash}`;
+  /*
+   * Carry the current query string and fragment onto the language links.
+   * Done here rather than in the template because these pages are static:
+   * there is no request-time URL to read during the build.
+   *
+   * Re-run on `astro:page-load` (which also fires on the first load): a bundled
+   * script executes only once, so after a ClientRouter navigation the freshly
+   * swapped-in links would otherwise lose the suffix. `astro:page-load` fires
+   * once the new page is in the DOM, so the links it targets are the current
+   * ones.
+   */
+  function carrySuffixToLangLinks(): void {
+    const suffix = `${window.location.search}${window.location.hash}`;
+    if (!suffix) return;
 
-  if (suffix) {
     for (const link of document.querySelectorAll<HTMLAnchorElement>(
       '.lang-switcher__link',
     )) {
       // Read/write the attribute rather than the `pathname` property, so the
       // href stays site-relative instead of being expanded to an absolute URL.
       const href = link.getAttribute('href');
-      if (href) {
+      if (href && !href.endsWith(suffix)) {
         link.setAttribute('href', href + suffix);
       }
     }
   }
+
+  // Called immediately as well: `astro:page-load` only fires when the
+  // ClientRouter is present, and without it this script must still run once on
+  // load. The `endsWith` guard above makes the two paths safe to both run.
+  carrySuffixToLangLinks();
+  document.addEventListener('astro:page-load', carrySuffixToLangLinks);
 </script>
 
 <style>

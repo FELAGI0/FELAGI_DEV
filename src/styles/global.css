@@ -9,12 +9,6 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /*
-   * In-page anchors (the sticky navigator, section links) would otherwise land
-   * with the heading hidden behind the sticky header — it is 4rem tall. This
-   * offsets every anchor jump and `scrollIntoView` by a little more than that.
-   */
-  scroll-padding-top: 5.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -261,6 +255,107 @@ button {
 .page {
   flex: 1 0 auto;
   padding-block: var(--space-12);
+}
+
+/*
+ * CP4b — scroll reveal (stagger fade-slide-up), per element, not per section.
+ *
+ * A section's heading, paragraphs, cards and list items are each their own
+ * reveal unit, so the content cascades in one item at a time. Animating a
+ * section as a single block reads as "nothing happened"; the per-item stagger is
+ * what makes the motion legible.
+ *
+ * Gated on `[data-motion='ok']`, which the pre-paint theme script sets only when
+ * the visitor has NOT requested reduced motion. So with reduced motion, or with
+ * scripting off, this block never matches and the content is simply static —
+ * no hidden-forever elements, and no extra `prefers-reduced-motion` block.
+ *
+ * The hidden state is keyed on the section *lacking* `.is-revealed`, so the
+ * revealed state needs no CSS of its own — the script adds one class to the
+ * section and sets `--reveal-delay` on each unit before it does.
+ *
+ * The unit list below MUST stay identical to `REVEAL_UNITS` in
+ * src/pages/[lang]/index.astro: the script drives the reveal from that list, so
+ * a drift between the two would hide elements that never get revealed.
+ */
+[data-motion='ok'] :where(.section, .band):not(.is-revealed) :where(
+    .section__title,
+    .section > p,
+    .split__body > p,
+    .principles > li,
+    .skills > li,
+    .contacts > li,
+    .project-list,
+    .section-more
+  ) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+/*
+ * Headings fade without moving. A `translateY` on a `position: sticky` heading
+ * makes it a containing block and slips it out from under its own `top` offset
+ * for the length of the animation; fade-only keeps the sticky maths intact.
+ * Same specificity as the rule above (both use `:where`), so order decides —
+ * this must come after.
+ */
+[data-motion='ok'] :where(.section, .band):not(.is-revealed) :where(.section__title) {
+  transform: none;
+}
+
+/*
+ * The transition lives outside the `:not(.is-revealed)` guard above: the moment
+ * the class is added the guard stops matching, and a transition declared inside
+ * it would vanish with it — the reveal would snap instead of animate.
+ *
+ * `:is(.section, .band)` here, NOT `:where(...)`: the theme rule
+ * `.theme-ready body *` sets `transition-property: background-color,
+ * border-color, color` (specificity 0,1,1) on every element from first paint.
+ * A `:where()` here weighs only (0,1,0) and LOST to it, so `transition-property`
+ * was forced to the theme's three colours and `opacity`/`transform` never
+ * animated — the reveal snapped in. `:is()` counts its argument (0,1,0), lifting
+ * this rule to (0,2,0), which wins. The shorthand also carries the 550ms
+ * duration, overriding the theme rule's 150ms.
+ *
+ * The unit list is `.project-list`, not `.project-list > li`: a card sets its
+ * own `transition` (border/transform on hover), and a more specific rule here
+ * would have to fight it for the same property. Revealing the list as one block
+ * sidesteps that.
+ */
+[data-motion='ok'] :is(.section, .band) :where(
+    .section__title,
+    .section > p,
+    .split__body > p,
+    .principles > li,
+    .skills > li,
+    .contacts > li,
+    .project-list,
+    .section-more
+  ) {
+  transition:
+    opacity 550ms ease-out var(--reveal-delay, 0ms),
+    transform 550ms ease-out var(--reveal-delay, 0ms),
+    background-color var(--transition),
+    border-color var(--transition),
+    color var(--transition);
+}
+
+/* A section already on screen at load is shown with no transition at all, so
+   the first screen is simply present instead of animating in. The script sets
+   `data-reveal-instant` alongside `is-revealed` for exactly those sections.
+   `:is()` for the same specificity reason as above — it must outrank both the
+   transition rule it cancels and the theme rule. */
+[data-motion='ok'] :is(.section, .band)[data-reveal-instant] :where(
+    .section__title,
+    .section > p,
+    .split__body > p,
+    .principles > li,
+    .skills > li,
+    .contacts > li,
+    .project-list,
+    .section-more
+  ) {
+  transition: none;
 }
 
 @media (min-width: 48rem) {

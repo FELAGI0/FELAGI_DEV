@@ -1,5 +1,6 @@
 ---
 import { Font } from 'astro:assets';
+import { ClientRouter } from 'astro:transitions';
 import Footer from '@/components/Footer.astro';
 import LangSwitcher from '@/components/LangSwitcher.astro';
 import Logo from '@/components/Logo.astro';
@@ -48,11 +49,11 @@ if (import.meta.env.DEV && urlLang !== lang) {
 /*
  * No site-wide nav links in the header.
  *
- * The home page lists its own sections in `SectionNav`, and the projects list is
- * one click from there; a second copy of those two links in the header only
- * duplicated them and competed for width on narrow screens. The brand — the
- * monogram plus the name — remains the way back to the home page, so no page is
- * left without a route out.
+ * The header carries only the brand, the language switcher and the theme
+ * toggle; the home page's own "All projects" link and the project pages' back
+ * link handle cross-page navigation. A nav here would duplicate those and
+ * compete for width on narrow screens. The brand — the monogram plus the name —
+ * remains the way back to the home page, so no page is left without a route out.
  */
 ---
 
@@ -85,6 +86,17 @@ if (import.meta.env.DEV && urlLang !== lang) {
       preload={[{ weight: 500 }]}
     />
     <ThemeScript />
+    {/*
+      View transitions (CP4b). `fallback="swap"` is the graceful path for
+      browsers without the View Transitions API: Astro still does the
+      client-side navigation, only skipping the animation, so the site never
+      depends on the API being present. The default `fade` handles whole-page
+      swaps; the list→detail morph is opted into per element with
+      `transition:name` + `transition:animate="initial"` (ProjectCard and the
+      detail header). Astro's own stylesheet already disables every view
+      transition under `prefers-reduced-motion`, so no extra rule is needed here.
+    */}
+    <ClientRouter fallback="swap" />
   </head>
   <body>
     <header class="site-header">
