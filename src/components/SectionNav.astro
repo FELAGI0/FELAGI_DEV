@@ -169,22 +169,69 @@ const { lang, items } = Astro.props;
 </script>
 
 <style>
+  /*
+   * The navigator is hidden by default and only appears on very wide displays.
+   *
+   * It is `position: fixed` against the left screen edge, so it lives outside the
+   * page's layout column. It cannot be shown below 2000px: the container is up
+   * to 1440px wide and centred, so at 1920px the content already starts at
+   * x=264 and a 220px panel at x=40 would end at 260 — a 4px gap, i.e. touching.
+   * Below that it would overlap the content outright.
+   *
+   * Measured gaps to the content edge with the panel at [40..260]:
+   *   1920 → 4px (overlap risk)   2000 → 44px   2100 → 94px   2560 → 324px
+   * At 2000px the gap is 44px — still under the site's 48px grid gutter, so the
+   * bar is visually tight there. 2100px (131.25rem) gives a comfortable 94px and
+   * keeps the threshold on a round 100px step; 2000px is where it first clears
+   * zero, not where it looks right. The threshold is set at 125rem (2000px) to
+   * match the brief, and the gap at that width is reported rather than silently
+   * accepted.
+   */
   .section-nav {
     display: none;
   }
 
-  /*
-   * Only from 1024px up. Below that the content column is narrow enough that
-   * the links would either wrap or squeeze the text they sit beside.
-   */
-  @media (min-width: 64rem) {
+  @media (min-width: 125rem) {
     .section-nav {
       display: block;
-      position: sticky;
-      /* Clears the sticky header (4rem tall) plus a little breathing room. */
-      top: 6rem;
-      align-self: start;
+      position: fixed;
+      /*
+       * Edge offset and width are in rem, matching the rest of the layout.
+       *
+       * This is not cosmetic: the threshold (125rem) and the container (90rem)
+       * are both rem-based, so the margin left for this panel is a fixed number
+       * of rem regardless of the user's base font size. Keeping `left` and
+       * `width` in rem as well makes the gap between the panel and the content
+       * scale-invariant — at a larger base font every term grows together and the
+       * clearance stays proportional, where fixed px here would shrink it.
+       *
+       * 40px / 220px at the default 16px base.
+       */
+      left: 2.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 13.75rem;
+      /* Above the page content. The background grid sits at z-index -1 so it is
+         never in play. */
+      z-index: 1;
     }
+  }
+
+  /*
+   * The axis: a single hairline running the full height of the list.
+   *
+   * Drawn on the container, not per link, so it is continuous across the gaps
+   * between items — individual borders would break into four separate segments
+   * and read as four short rules rather than one axis.
+   */
+  .section-nav::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background-color: var(--border);
   }
 
   .section-nav__list {
@@ -193,25 +240,33 @@ const { lang, items } = Astro.props;
     list-style: none;
   }
 
-  .section-nav__item + .section-nav__item {
-    margin-top: var(--space-1);
+  /*
+   * 24px between items, matching the brief. Achieved with a row gap on the list
+   * rather than a margin on each item, so the spacing is stated once.
+   */
+  .section-nav__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6); /* 24px */
   }
 
   /*
-   * The active indicator is a 2px accent bar in the left padding.
+   * The active notch sits *on* the axis.
    *
-   * `border-left` on every item — transparent when inactive — rather than a
-   * `::before` that appears only on the active one: reserving the space is what
-   * keeps the labels from shifting sideways as the active item changes during
-   * scroll.
+   * Every link reserves a 3px transparent left border at the same x as the 1px
+   * axis line, so when a link is active its accent border covers that stretch of
+   * the hairline — the notch reads as part of the axis rather than as a separate
+   * mark beside it. Reserving the border on all links also stops the labels from
+   * shifting sideways as the active item changes during scroll.
    */
   .section-nav__link {
     display: flex;
     align-items: baseline;
     gap: var(--space-3);
-    padding: var(--space-2) 0 var(--space-2) 0.75rem; /* 12px */
-    border-left: 2px solid transparent;
-    font-size: 0.9375rem; /* 15px */
+    padding-left: 0.75rem; /* 12px */
+    border-left: 3px solid transparent;
+    font-size: 1rem; /* 16px */
+    font-weight: 400;
     color: var(--fg-subtle);
     text-decoration: none;
     transition:
@@ -219,24 +274,26 @@ const { lang, items } = Astro.props;
       border-color var(--transition);
   }
 
+  /*
+   * The number is a full-strength accent — the note that makes the panel
+   * recognisable at a glance.
+   */
   .section-nav__index {
     /* Fixed width so labels align regardless of the numbers' digits. */
-    min-width: 1.5em;
+    min-width: 1.75em;
     font-family: var(--font-mono);
-    font-size: var(--text-chip); /* 13px */
+    font-size: 0.875rem; /* 14px */
     color: var(--accent);
-    opacity: 0.55;
   }
 
   .section-nav__label {
-    /* Fits the longest label ("Разделы страницы" / "Infrastructure"). */
-    max-width: 12ch;
+    white-space: nowrap;
   }
 
   /*
-   * Active state is carried by colour, weight *and* the bar — three cues rather
-   * than a colour alone, which would be no cue at all for anyone who cannot
-   * distinguish the accent from the muted grey.
+   * Active state is carried by colour, weight *and* the notch — three cues
+   * rather than a colour alone, which would be no cue at all for anyone who
+   * cannot distinguish the accent from the muted grey.
    */
   .section-nav__link.is-active {
     border-left-color: var(--accent);
@@ -244,17 +301,28 @@ const { lang, items } = Astro.props;
     font-weight: 500;
   }
 
-  .section-nav__link.is-active .section-nav__index {
-    opacity: 1;
-  }
-
-  /* Hover brightens the inactive items only part-way, so the pointer does not
-     read as "selected" before the click. */
+  /*
+   * Hover lifts the number to the accent and the label one step brighter, so the
+   * pointer previews the target without the row reading as already selected.
+   */
   .section-nav__link:not(.is-active):hover {
     color: var(--fg-muted);
   }
 
   .section-nav__link:not(.is-active):hover .section-nav__index {
-    opacity: 0.85;
+    color: var(--accent-hover);
+  }
+
+  /*
+   * On a short viewport a vertically centred panel could still run past the
+   * bottom edge; centring with `top: 50%` does not clamp. The list is four items
+   * tall (~180px), so this only bites on very short windows, but the guard costs
+   * one declaration.
+   */
+  @media (min-width: 125rem) and (max-height: 30rem) {
+    .section-nav {
+      top: var(--space-8);
+      transform: none;
+    }
   }
 </style>

@@ -118,80 +118,78 @@ const projectsHref = `/${lang}/projects/`;
     </div>
   </section>
 
-  <div class="container">
-    <!--
-      One sticky navigator for the four sections below it.
+  <!--
+    One navigator for the four sections below it.
 
-      The nav lives in the grid's left column and the four sections stack in the
-      right column, so a single sticky element stays in view across all of them.
-      Rendering the nav once per section instead would put four copies of the
-      same four links in the document, and the active state would then have to be
-      applied to all four at once — four elements to keep in sync where one
-      suffices.
-    -->
-    <div class="section-grid">
-      <SectionNav lang={lang} items={sectionNavItems} />
+    It is `position: fixed` against the left screen edge (see SectionNav), so it
+    sits outside this container and takes no space in the layout — the sections
+    keep the full container width. It is rendered here, next to the content it
+    describes, rather than at the top of the document, so the markup order still
+    reads as "this list, then these sections".
 
-      <div class="section-grid__content">
-        <!-- About: two columns, sticky heading on the left -->
-        <section class="section split" id="about" aria-labelledby="about-title">
-          <h2 class="section__title split__title" id="about-title">
-            {t(lang, 'nav.home')}
-          </h2>
-          <div class="split__body">
-            <p class="lead">{t(lang, 'about.p1')}</p>
-            <p class="lead">{t(lang, 'about.p2')}</p>
-          </div>
-        </section>
+    It is hidden below 2000px, where the centred container would otherwise reach
+    into it.
+  -->
+  <SectionNav lang={lang} items={sectionNavItems} />
 
-        <!-- Principles: same two-column shape -->
-        <section
-          class="section split"
-          id="principles"
-          aria-labelledby="principles-title"
-        >
-          <h2 class="section__title split__title" id="principles-title">
-            {t(lang, 'principles.title')}
-          </h2>
-          <div class="split__body">
-            <ol class="principles">
-              {
-                principleKeys.map((key, i) => (
-                  <PrincipleItem index={i + 1} text={t(lang, key)} />
-                ))
-              }
-            </ol>
-          </div>
-        </section>
-
-        <!-- Skills -->
-        <Section id="skills" title={t(lang, 'skills.title')}>
-          <ul class="skills">
-            {
-              SKILL_GROUPS.map((group) => (
-                <SkillCard lang={lang} labelKey={group.labelKey} items={group.items} />
-              ))
-            }
-          </ul>
-        </Section>
-
-        <!-- Contacts -->
-        <Section id="contacts" title={t(lang, 'contacts.title')}>
-          <p>{t(lang, 'contacts.note')}</p>
-          <ul class="contacts">
-            {
-              CONTACTS.map((contact) => (
-                <li class="contacts__item">
-                  <a class="contacts__link" href={contact.href}>
-                    {contact.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </Section>
+  <div class="container sections-with-nav">
+    <!-- About: two columns, sticky heading on the left -->
+    <section class="section split" id="about" aria-labelledby="about-title">
+      <h2 class="section__title split__title" id="about-title">
+        {t(lang, 'nav.home')}
+      </h2>
+      <div class="split__body">
+        <p class="lead">{t(lang, 'about.p1')}</p>
+        <p class="lead">{t(lang, 'about.p2')}</p>
       </div>
-    </div>
+    </section>
+
+    <!-- Principles: same two-column shape -->
+    <section
+      class="section split"
+      id="principles"
+      aria-labelledby="principles-title"
+    >
+      <h2 class="section__title split__title" id="principles-title">
+        {t(lang, 'principles.title')}
+      </h2>
+      <div class="split__body">
+        <ol class="principles">
+          {
+            principleKeys.map((key, i) => (
+              <PrincipleItem index={i + 1} text={t(lang, key)} />
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <Section id="skills" title={t(lang, 'skills.title')}>
+      <ul class="skills">
+        {
+          SKILL_GROUPS.map((group) => (
+            <SkillCard lang={lang} labelKey={group.labelKey} items={group.items} />
+          ))
+        }
+      </ul>
+    </Section>
+
+    <!-- Contacts -->
+    <Section id="contacts" title={t(lang, 'contacts.title')}>
+      <p>{t(lang, 'contacts.note')}</p>
+      <ul class="contacts">
+        {
+          CONTACTS.map((contact) => (
+            <li class="contacts__item">
+              <a class="contacts__link" href={contact.href}>
+                {contact.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
   </div>
 </BaseLayout>
 
@@ -361,28 +359,6 @@ const projectsHref = `/${lang}/projects/`;
   }
 
   /*
-   * Sticky navigator beside the four lower sections.
-   *
-   * The column is 220px and the gap 48px. A CP4c5 pass narrowed these to 170px
-   * and 24px to close the visual gap between the nav text and the content; that
-   * is reverted because the tighter gap made the navigator read as part of the
-   * content column rather than as its own margin note beside it. The wider
-   * spacing is the calmer of the two.
-   *
-   * Below 1024px this is a single column and `SectionNav` hides itself, so the
-   * markup order — nav first — stays the same at every width instead of being
-   * duplicated or reordered per breakpoint.
-   */
-  @media (min-width: 64rem) {
-    .section-grid {
-      display: grid;
-      grid-template-columns: 13.75rem 1fr; /* 220px | content */
-      gap: var(--space-12); /* 48px */
-      align-items: start;
-    }
-  }
-
-  /*
    * Two-column section: heading left, content right.
    *
    * Columns are `auto` + `1fr` rather than fixed fractions, so the heading takes
@@ -410,18 +386,26 @@ const projectsHref = `/${lang}/projects/`;
   }
 
   /*
-   * From 1024px the outer navigator already names the current section, so the
-   * inner sticky heading would be a third narrow column repeating what the
-   * navigator says — roughly half the content width spent on two columns of
-   * near-empty text. The split collapses to a single column here and the heading
-   * returns to normal flow, directly above its body.
+   * From 1024px the section headings move back above their bodies.
+   *
+   * Previously the navigator occupied a left column from 1024px, and the split's
+   * own heading column would have been a third narrow column repeating what the
+   * navigator already said. The navigator has since moved to a fixed position
+   * against the screen edge and no longer takes a column, so that specific
+   * reason is gone — but the collapse is kept, because the content column is the
+   * container width either way and a 16rem heading column inside it would still
+   * spend a sixth of the row on a two-word heading.
+   *
+   * The class is named for what it marks — a run of sections that has a
+   * navigator — rather than for the grid it used to be, so the rule still
+   * explains itself now that the grid is gone.
    */
   @media (min-width: 64rem) {
-    .section-grid .split {
+    .sections-with-nav .split {
       display: block;
     }
 
-    .section-grid .split__title {
+    .sections-with-nav .split__title {
       position: static;
       margin-bottom: var(--space-6);
     }
