@@ -1,6 +1,6 @@
 ---
-import { getLangFromUrl, localizePath } from '@/i18n/utils';
-import { languages, locales, type Lang } from '@/i18n/ui';
+import { getLangFromUrl, localizePath, otherLangs, t } from '@/i18n/utils';
+import { languages, type Lang } from '@/i18n/ui';
 
 /**
  * Links to *this same page* in every other locale, so switching language keeps
@@ -16,16 +16,14 @@ import { languages, locales, type Lang } from '@/i18n/ui';
  * crawlers and for visitors without JS.
  */
 const current: Lang = getLangFromUrl(Astro.url);
-const targets = locales
-  .filter((locale) => locale !== current)
-  .map((locale) => ({
-    locale,
-    label: languages[locale],
-    href: localizePath(Astro.url.pathname, locale),
-  }));
+const targets = otherLangs(current).map((locale) => ({
+  locale,
+  label: languages[locale],
+  href: localizePath(Astro.url.pathname, locale),
+}));
 ---
 
-<nav class="lang-switcher" aria-label="Language">
+<nav class="lang-switcher" aria-label={t(current, 'lang.switchLabel')}>
   <ul class="lang-switcher__list">
     {
       targets.map((target) => (

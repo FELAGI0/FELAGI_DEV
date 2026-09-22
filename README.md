@@ -109,7 +109,7 @@ site stays static.
 ## Layout
 
 ```
-public/            static assets served as-is (favicon, og images)
+public/            static assets served as-is (favicon)
 src/
   components/      UI components (Astro, no framework islands)
   layouts/         page shells
@@ -125,9 +125,9 @@ src/
 ## Roadmap
 
 - [x] **CP0** — scaffold, strict TS, theme tokens, dark/light toggle
-- [ ] **CP1** — ru/en routing, UI string dictionary
-- [ ] **CP2** — typed projects content collection
-- [ ] **CP3** — pages: about, project list, project detail
-- [ ] **CP4** — polish: responsiveness, motion, details
-- [ ] **CP5** — SEO: meta, OG, hreflang, sitemap
+- [x] **CP1** — ru/en routing, UI string dictionary
+- [x] **CP2** — typed projects content collection
+- [x] **CP3** — pages: about, project list, project detail
+- [x] **CP4** — polish: responsiveness, motion, details
+- [x] **CP5** — SEO: meta, OG, hreflang, sitemap
 - [ ] **CP6** — production deploy and final Lighthouse pass

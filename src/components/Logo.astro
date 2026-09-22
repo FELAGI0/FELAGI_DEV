@@ -13,23 +13,10 @@
  * from that surrounding text; giving the mark its own `<title>` would make a
  * screen reader announce the name twice.
  */
-interface Props {
-  /** Rendered edge length: 32px (header), 48px (inline), 200px (hero). */
-  size?: 'sm' | 'md' | 'lg';
-}
 
-const { size = 'sm' } = Astro.props;
-
-const SIZE_PX = { sm: 32, md: 48, lg: 200 } as const;
-
-const px = SIZE_PX[size];
-
-/**
- * The brief specifies a 12px radius at the 32px size. Scaling it by the same
- * ratio keeps the silhouette identical at 200px instead of looking like a
- * rounded square one moment and a squircle the next.
- */
-const radius = Math.round((12 / 32) * px);
+/** Rendered edge length: the brief's 32px header size, with a 12px radius. */
+const px = 32;
+const radius = 12;
 
 /** Letter occupies ~55% of the square's edge (brief §5). */
 const letterSize = Math.round(px * 0.55);

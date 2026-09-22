@@ -90,7 +90,7 @@ const roleWords = t(lang, 'home.role').split(' ');
   <!--
     Selected projects: a full-bleed band.
     The section spans the viewport (the layout's bleed mode hands us the
-    undivided <main>), while its contents stay on the same 1360px grid as
+    undivided <main>), while its contents stay on the same 1440px grid as
     everything else by sitting in a `.container` of their own. A slightly
     lighter background separates it from the hero above and the sections below
     without a second border.
@@ -483,17 +483,9 @@ const roleWords = t(lang, 'home.role').split(' ');
     border-bottom: 1px solid var(--border);
   }
 
-  /* Shared list layouts */
-  .project-list {
-    display: grid;
-    gap: var(--space-6);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
   /*
-   * Two cards side by side from 1280px up.
+   * Two cards side by side from 1280px up. The base grid (gap, reset margin)
+   * comes from `.project-list` in global.css — shared with the projects index.
    *
    * The band is full-bleed, so at that width each card gets roughly 640px —
    * enough that the summary sits on two lines instead of four. Below 1280px a
@@ -511,7 +503,7 @@ const roleWords = t(lang, 'home.role').split(' ');
    *
    * The layout's `bleed` mode removes the outer container, so this section spans
    * the viewport while its own `.container` keeps the contents aligned to the
-   * same 1360px grid as every other section.
+   * same 1440px grid as every other section.
    *
    * Depth comes from a vignette, not a flat fill: an inset shadow darkens the
    * edges toward the page colour while the centre keeps full `--bg-subtle`, so

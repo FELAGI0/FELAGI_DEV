@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { defaultLang, isLang, type Lang } from './ui';
+import { isLang, type Lang } from './ui';
 
 /**
  * Access layer for the `projects` collection.
@@ -36,7 +36,7 @@ export interface Project {
  * schema cannot express "the filename must end in a locale", so this is where
  * that rule lives. Failing loudly beats rendering a page at a nonsense slug.
  */
-export function parseProjectId(id: string): { slug: string; lang: Lang } | null {
+function parseProjectId(id: string): { slug: string; lang: Lang } | null {
   const segments = id.split('/').filter(Boolean);
   if (segments.length < 2) return null;
 
@@ -50,7 +50,7 @@ export function parseProjectId(id: string): { slug: string; lang: Lang } | null 
 }
 
 /** Every project for one locale. */
-export async function getProjects(lang: Lang): Promise<Project[]> {
+async function getProjects(lang: Lang): Promise<Project[]> {
   const entries = await getCollection('projects');
 
   const projects: Project[] = [];
@@ -87,30 +87,6 @@ export async function getFeaturedProjects(lang: Lang): Promise<Project[]> {
   return projects.filter((project) => project.entry.data.featured);
 }
 
-/** Locales this project actually has a translation for. */
-export async function getProjectLangs(slug: string): Promise<Lang[]> {
-  const entries = await getCollection('projects');
-  const langs: Lang[] = [];
-  for (const entry of entries) {
-    const parsed = parseProjectId(entry.id);
-    if (parsed !== null && parsed.slug === slug) {
-      langs.push(parsed.lang);
-    }
-  }
-  return langs;
-}
-
-/** Every distinct slug, regardless of locale. Used to build static paths. */
-export async function getProjectSlugs(): Promise<string[]> {
-  const entries = await getCollection('projects');
-  const slugs = new Set<string>();
-  for (const entry of entries) {
-    const parsed = parseProjectId(entry.id);
-    if (parsed !== null) slugs.add(parsed.slug);
-  }
-  return [...slugs];
-}
-
 /**
  * Every project page that should exist, as `{ slug, lang, project }`.
  *
@@ -132,5 +108,3 @@ export async function getProjectPages(): Promise<Project[]> {
 
   return pages;
 }
-
-export { defaultLang };

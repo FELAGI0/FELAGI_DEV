@@ -56,13 +56,7 @@ const detailHref = `/${lang}/projects/${slug}/`;
   </ul>
 
   {
-    /*
-     * The project's headline figure, set larger than the chips above it. Only
-     * rendered when the frontmatter provides one, so a project without a
-     * meaningful number shows nothing rather than an empty block.
-     */
-  }
-  {
+    /* Headline figure: rendered only when the frontmatter provides one. */
     data.metric && (
       <p class="project-card__metric">
         <span class="project-card__metric-value">{data.metric.value}</span>

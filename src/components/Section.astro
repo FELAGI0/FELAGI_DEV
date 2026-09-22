@@ -18,22 +18,19 @@ interface Props {
   id: string;
   /** Section heading, already translated by the caller. */
   title?: string;
-  /** Heading level. Sections on a page are `h2`; nested blocks use `h3`. */
-  level?: 2 | 3;
 }
 
-const { id, title, level = 2 } = Astro.props;
+const { id, title } = Astro.props;
 
-const Heading = `h${level}` as const;
 const headingId = `${id}-title`;
 ---
 
 <section class="section" id={id} aria-labelledby={title ? headingId : undefined}>
   {
     title && (
-      <Heading class="section__title" id={headingId}>
+      <h2 class="section__title" id={headingId}>
         {title}
-      </Heading>
+      </h2>
     )
   }
   <slot />

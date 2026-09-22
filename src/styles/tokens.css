@@ -52,8 +52,6 @@
   /* Single accent — brief §2. Passes AA as link text on every surface. */
   --accent: #5b9dff;
   --accent-hover: #7fb4ff;
-  --accent-contrast: #0a0a0a;
-  --accent-soft: rgb(91 157 255 / 0.12);
 
   --focus-ring: var(--accent);
 
@@ -75,7 +73,6 @@
   --text-chip: 0.8125rem; /* 13px — chips */
   --text-muted: 1rem; /* 16px — body copy */
   --text-lead: 1.0625rem; /* 17px — About and other lead paragraphs */
-  --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem; /* body */
   --text-lg: 1.125rem;
@@ -159,6 +156,4 @@
    */
   --accent: #1565e1;
   --accent-hover: #1a5fd0;
-  --accent-contrast: #ffffff;
-  --accent-soft: rgb(21 101 225 / 0.1);
 }

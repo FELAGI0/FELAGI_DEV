@@ -13,7 +13,6 @@
 const en = {
   'nav.home': 'About',
   'nav.homeLabel': 'Home',
-  'nav.projects': 'Projects',
   'lang.switchLabel': 'Switch language',
   'theme.toggleLabel': 'Toggle color theme',
   'theme.switchToDark': 'Switch to dark theme',
@@ -24,10 +23,6 @@ const en = {
   'home.role': 'Backend Developer',
   'home.tagline':
     'I design APIs, automate processes and turn ideas into working services.',
-  'home.heroLabel': 'Introduction',
-
-  // Stack marquee
-  'home.stackLabel': 'Technology stack',
 
   // Selected projects
   'home.selected.title': 'Selected projects',
@@ -63,10 +58,7 @@ const en = {
   'projects.repo': 'Source',
   'projects.demo': 'Demo',
   'projects.back': 'Back to projects',
-  'projects.notFound': 'Project not found.',
   'footer.linksLabel': 'Links',
-  'redirect.title': 'Redirecting',
-  'redirect.manual': 'Choose a language:',
 } as const;
 
 /** Every UI string key, derived from the reference dictionary. */
@@ -75,7 +67,6 @@ export type UIKey = keyof typeof en;
 const ru: Record<UIKey, string> = {
   'nav.home': 'Обо мне',
   'nav.homeLabel': 'На главную',
-  'nav.projects': 'Проекты',
   'lang.switchLabel': 'Переключить язык',
   'theme.toggleLabel': 'Переключить тему',
   'theme.switchToDark': 'Включить тёмную тему',
@@ -86,10 +77,6 @@ const ru: Record<UIKey, string> = {
   'home.role': 'Backend-разработчик',
   'home.tagline':
     'Проектирую API, автоматизирую процессы и превращаю идеи в рабочие сервисы.',
-  'home.heroLabel': 'Кто я',
-
-  // Stack marquee
-  'home.stackLabel': 'Технологический стек',
 
   // Selected projects
   'home.selected.title': 'Избранные проекты',
@@ -125,10 +112,7 @@ const ru: Record<UIKey, string> = {
   'projects.repo': 'Исходники',
   'projects.demo': 'Демо',
   'projects.back': 'К проектам',
-  'projects.notFound': 'Проект не найден.',
   'footer.linksLabel': 'Ссылки',
-  'redirect.title': 'Перенаправление',
-  'redirect.manual': 'Выберите язык:',
 };
 
 /** Display names for the language switcher, keyed by locale code. */

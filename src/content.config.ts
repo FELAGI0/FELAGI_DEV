@@ -57,9 +57,6 @@ const projects = defineCollection({
     /** Caveat shown next to the demo link, e.g. "cold start ~30s". */
     demoNote: z.string().min(1).optional(),
 
-    /** Screenshot path, added later. */
-    cover: z.string().min(1).optional(),
-
     /** ISO date (`YYYY-MM-DD`). Used to sort newest first. */
     date: isoDate,
 
