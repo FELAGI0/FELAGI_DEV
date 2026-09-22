@@ -31,6 +31,43 @@ html {
   }
 }
 
+/*
+ * Background grid.
+ *
+ * A fixed 64px lattice behind everything, faint enough to read as texture
+ * rather than as a drawn element.
+ *
+ * Details that matter:
+ *
+ * - `position: fixed` takes the pseudo-element out of flow, which is required
+ *   here: `body` is a flex column, so an in-flow `::before` would become a flex
+ *   item and take up a row of the layout.
+ * - `z-index: -1` puts it behind the page content. It must not be `z-index: 0`
+ *   with `body`'s own background painting over it, and it must not be a positive
+ *   value, which would cover text.
+ * - `pointer-events: none` so it can never intercept a click or a text
+ *   selection, even though it sits above the body background.
+ * - No `overflow` is set anywhere in this rule, and `inset: 0` on a fixed
+ *   element cannot exceed the viewport, so it cannot introduce horizontal
+ *   scrolling. Nor does it create a containing block for `position: sticky`
+ *   descendants — a `fixed` ancestor does, but this is a sibling pseudo-element,
+ *   not an ancestor, so the sticky nav and sticky section headings are
+ *   unaffected.
+ * - The body background stays opaque behind it, so the grid is painted over the
+ *   page colour rather than over the content.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
 body {
   margin: 0;
   min-height: 100vh;

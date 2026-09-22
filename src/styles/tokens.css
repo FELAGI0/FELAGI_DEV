@@ -25,6 +25,17 @@
   --border-strong: #3a3a3a;
 
   /*
+   * Background grid line.
+   *
+   * A token rather than a literal inside the rule, so the light theme swaps the
+   * colour in the same place as every other themed value instead of needing a
+   * second copy of the whole rule. Kept very faint (2.5% alpha): the grid is
+   * meant to register as texture at the edge of perception, not as a visible
+   * element competing with the content.
+   */
+  --grid-line: rgb(255 255 255 / 0.025);
+
+  /*
    * Text. `--fg` and `--fg-muted` are the brief's values verbatim.
    *
    * `--fg-subtle` is a third, de-emphasised tier the brief does not define but
@@ -131,6 +142,9 @@
 
   --border: #e5e5e5;
   --border-strong: #c9c9c9;
+
+  /* Dark lines on the light background — the same faintness, inverted. */
+  --grid-line: rgb(0 0 0 / 0.025);
 
   --fg: #0a0a0a;
   --fg-muted: #5a5a5a;
