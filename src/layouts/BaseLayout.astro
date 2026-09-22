@@ -8,7 +8,7 @@ import ThemeScript from '@/components/ThemeScript.astro';
 import ThemeToggle from '@/components/ThemeToggle.astro';
 import { SITE_DESCRIPTION, SITE_NAME } from '@/consts';
 import { getLangFromUrl, localizePath, t } from '@/i18n/utils';
-import type { Lang } from '@/i18n/ui';
+import { locales, type Lang } from '@/i18n/ui';
 import '@/styles/global.css';
 
 interface Props {
@@ -18,6 +18,13 @@ interface Props {
   title: string;
   /** Meta description for search engines and social previews. */
   description?: string;
+  /**
+   * Locales this page actually exists in, emitted as hreflang alternates.
+   * Defaults to every locale; a page that may be missing a translation (a
+   * project detail page) passes the real list so hreflang never advertises
+   * a 404.
+   */
+  alternates?: Lang[];
   /**
    * Skip the standard centred container wrapper.
    *
@@ -32,9 +39,24 @@ interface Props {
   bleed?: boolean;
 }
 
-const { lang, title, description = SITE_DESCRIPTION, bleed = false } = Astro.props;
+const {
+  lang,
+  title,
+  description = SITE_DESCRIPTION,
+  bleed = false,
+  alternates = locales,
+} = Astro.props;
 
 const fullTitle = title === SITE_NAME ? title : `${title} · ${SITE_NAME}`;
+
+// Fail loudly rather than emit broken SEO tags: canonical, hreflang and og:url
+// are absolute and need the configured site origin.
+const site = Astro.site;
+if (!site) {
+  throw new Error('Set `site` in astro.config.mjs — canonical/hreflang/OG URLs need it.');
+}
+
+const canonical = new URL(Astro.url.pathname, site);
 
 // Derive the locale from the URL too and warn loudly in dev if a page and its
 // layout disagree — that mismatch is otherwise invisible until a human notices
@@ -68,13 +90,43 @@ if (import.meta.env.DEV && urlLang !== lang) {
     <meta name="description" content={description} />
 
     <!--
+      SEO: one canonical per page, an hreflang pair declaring the two locales
+      as translations of each other, and x-default pointing at the `/` stub
+      (it is the locale-neutral entry, doing the browser-language detection).
+    -->
+    <link rel="canonical" href={canonical} />
+    {
+      alternates.map((alt) => (
+        <link
+          rel="alternate"
+          hreflang={alt}
+          href={new URL(localizePath(Astro.url.pathname, alt), site)}
+        />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={new URL('/', site)} />
+
+    <!-- Open Graph + Twitter card. One shared 1200×630 image (public/og.png);
+         summary_large_image is the card type that renders it full-width. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'ru' ? 'ru_RU' : 'en_US'} />
+    <meta property="og:image" content={new URL('/og.png', site)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="FELAGI_DEV — Backend developer, portfolio and selected projects" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <!--
       Fonts are self-hosted (see the `fonts` block in astro.config.mjs) and
       emitted here, in <head>, before any content is painted.
 
-      Only three files are preloaded — Inter 400 and 600, and JetBrains Mono 500.
+      Only three files are preloaded — Inter 400 and 600, and JetBrains Mono 600.
       These are the faces above the fold on every page: body copy and headings in
-      the first case, the wordmark/monogram and stack chips in the second.
-      Preloading the bold and 700 weights would compete with the CSS and images
+      the first case, the project metric figures in the second.
+      Preloading the remaining weights would compete with the CSS and images
       for bandwidth on first load, for text the visitor has not scrolled to yet.
     -->
     <Font
@@ -83,7 +135,7 @@ if (import.meta.env.DEV && urlLang !== lang) {
     />
     <Font
       cssVariable="--font-jetbrains-mono"
-      preload={[{ weight: 500 }]}
+      preload={[{ weight: 600 }]}
     />
     <ThemeScript />
     {/*
@@ -102,7 +154,7 @@ if (import.meta.env.DEV && urlLang !== lang) {
     <header class="site-header">
       <div class="container site-header__inner">
         <a class="site-header__brand" href={localizePath('/', lang)}>
-          <Logo size="sm" />
+          <Logo />
           <span class="site-header__name">{t(lang, 'home.name')}</span>
           {/*
             The link needs a name that survives at every width. The monogram is

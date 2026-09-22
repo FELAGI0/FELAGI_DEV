@@ -1,13 +1,22 @@
 // @ts-check
 import mdx from '@astrojs/mdx';
+import sitemap from '@astrojs/sitemap';
 import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
+  // Absolute base for canonical URLs, hreflang alternates, OG tags and the
+  // sitemap. Production is the Cloudflare Pages URL (see docs/design.md).
+  site: 'https://felagi-dev.pages.dev',
+
   // `.mdx` is the authoring format for project pages: MDX keeps frontmatter
   // (validated by the collection schema) while allowing components in the body
   // later on.
-  integrations: [mdx()],
+  integrations: [
+    mdx(),
+    // The `/` stub is a noindex redirect, so it stays out of the sitemap.
+    sitemap({ filter: (page) => new URL(page).pathname !== '/' }),
+  ],
 
   /*
    * Self-hosted fonts, served from our own origin.
@@ -37,7 +46,7 @@ export default defineConfig({
       provider: fontProviders.fontsource(),
       name: 'JetBrains Mono',
       cssVariable: '--font-jetbrains-mono',
-      weights: [400, 500, 700],
+      weights: [400, 600, 700],
       styles: ['normal'],
       // Cyrillic included for the same reason as Inter: the monospace face is
       // used for Russian-facing text too (dates, project meta).

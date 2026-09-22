@@ -15,6 +15,7 @@ import type { GetStaticPaths } from 'astro';
 import { render } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getProjectPages, type Project } from '@/i18n/projects';
+import type { Lang } from '@/i18n/ui';
 import { t } from '@/i18n/utils';
 
 export const getStaticPaths = (async () => {
@@ -23,22 +24,33 @@ export const getStaticPaths = (async () => {
     // Both params come from the same content file, so they can never be mixed:
     // `slug=felagi-crm, lang=ru` exists only because `felagi-crm/ru.mdx` does.
     params: { slug: project.slug, lang: project.lang },
-    props: { project },
+    props: {
+      project,
+      // hreflang alternates must only advertise translations that exist: a
+      // single-locale project 404s under the other prefix.
+      alternates: pages.filter((p) => p.slug === project.slug).map((p) => p.lang),
+    },
   }));
 }) satisfies GetStaticPaths;
 
 interface Props {
   project: Project;
+  alternates: Lang[];
 }
 
-const { project } = Astro.props;
+const { project, alternates } = Astro.props;
 const { lang, entry } = project;
 const { data } = entry;
 
 const { Content } = await render(entry);
 ---
 
-<BaseLayout lang={lang} title={data.title} description={data.summary}>
+<BaseLayout
+  lang={lang}
+  title={data.title}
+  description={data.summary}
+  alternates={alternates}
+>
   <p class="back">
     <a href={`/${lang}/projects/`}>← {t(lang, 'projects.back')}</a>
   </p>

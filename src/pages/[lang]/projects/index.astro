@@ -39,11 +39,9 @@ const projects = await getProjectsSorted(lang);
     font-size: var(--text-lg);
   }
 
+  /* Base grid comes from `.project-list` in global.css; only the gap below
+     the intro line is this page's own. */
   .project-list {
-    display: grid;
-    gap: var(--space-6);
     margin-top: var(--space-8);
-    padding: 0;
-    list-style: none;
   }
 </style>

@@ -13,14 +13,13 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "check:lf": "node scripts/check-final-newline.mjs",
-    "hooks:install": "git config core.hooksPath scripts/git-hooks",
     "test": "vitest run",
     "test:watch": "vitest",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.0.1",
+    "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.3"
   },
   "devDependencies": {
