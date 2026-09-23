@@ -6,9 +6,9 @@
 - GitHub: https://github.com/FELAGI0
 - Telegram: https://t.me/olll07
 - Email: felagi2323@gmail.com
-- Прод: https://felagi-dev.pages.dev
+- Прод: https://felagi-dev.vercel.app
 - Стек сайта: Astro 7.3.3 static (SSG), TypeScript strict, vanilla JS
-- Хостинг: Cloudflare Pages, autodeploy из main
+- Хостинг: Vercel, autodeploy из main
 
 ## 1. Тон и роль
 

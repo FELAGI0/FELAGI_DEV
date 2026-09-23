@@ -1,0 +1,76 @@
+---
+/**
+ * Custom 404.
+ *
+ * Locale-neutral, like the `/` stub: the host serves this one file for every
+ * unmatched URL, so it cannot know the visitor's language — both are offered
+ * as links. Theme-aware through the shared pre-paint script and global tokens.
+ * `noindex` because a 404 body must never enter the index.
+ */
+import { Font } from 'astro:assets';
+import Logo from '@/components/Logo.astro';
+import ThemeScript from '@/components/ThemeScript.astro';
+import '@/styles/global.css';
+---
+
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>404 · FELAGI_DEV</title>
+    <meta name="robots" content="noindex" />
+    <Font cssVariable="--font-inter" />
+    <Font cssVariable="--font-jetbrains-mono" />
+    <ThemeScript />
+  </head>
+  <body>
+    <main class="notfound">
+      <Logo />
+      <p class="notfound__code" aria-hidden="true">404</p>
+      <h1 class="notfound__title">
+        Page not found / <span lang="ru">Страница не найдена</span>
+      </h1>
+      <p class="notfound__links">
+        <a href="/en/" hreflang="en" lang="en">Home (EN)</a>
+        <span class="notfound__sep" aria-hidden="true">·</span>
+        <a href="/ru/" hreflang="ru" lang="ru">Главная (RU)</a>
+      </p>
+    </main>
+  </body>
+</html>
+
+<style>
+  .notfound {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    text-align: center;
+  }
+
+  .notfound__code {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: clamp(4rem, 12vw, 7rem);
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .notfound__title {
+    font-size: var(--text-xl);
+  }
+
+  .notfound__links {
+    font-size: var(--text-sm);
+  }
+
+  .notfound__sep {
+    margin-inline: var(--space-2);
+    color: var(--fg-muted);
+  }
+</style>

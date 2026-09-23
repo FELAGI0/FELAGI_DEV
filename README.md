@@ -1,126 +1,132 @@
 # FELAGI_DEV
 
-Developer portfolio — a static, localized (ru/en) site built with Astro.
-No backend: content lives in the repository, the build produces plain HTML.
+Static portfolio site of a backend developer, built with Astro.
+There is no backend: content lives in the repository and the build produces plain HTML.
 
-## Stack
+[![Astro](https://img.shields.io/badge/Astro-7-ff5d01?logo=astro&logoColor=white)](https://astro.build/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?logo=vercel&logoColor=white)](https://felagi-dev.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-felagi--dev.vercel.app-blue)](https://felagi-dev.vercel.app/)
 
-- **Astro 7** — static output, zero JS by default, islands only where needed
-- **TypeScript** — `astro/tsconfigs/strict` plus extra strict flags, no `@ts-ignore`
-- **Design tokens in CSS** — dark theme first, light via `data-theme`
-- **pnpm**, Node 22 LTS
+## Live Demo
 
-## Requirements
+<https://felagi-dev.vercel.app>
 
-- Node **>= 22.22.0** (see `.nvmrc`, `engines`)
-- pnpm **>= 10**
+- English: <https://felagi-dev.vercel.app/en/>
+- Русский: <https://felagi-dev.vercel.app/ru/>
 
-### Why 22.22.0
+The root URL is a locale-neutral stub: it reads `navigator.languages` and sends
+the visitor to `/en/` or `/ru/`. With JavaScript disabled a `<noscript>` meta
+refresh falls back to `/en/`, and visible links let the visitor switch by hand.
 
-The floor comes from the dependency tree, not from preference. The strictest
-`engines.node` among our actual dependencies is:
+## Features
 
-| Package | Requires |
+- **Static site generation** — fully prerendered HTML, zero JS by default and no
+  framework islands. Client-side scripts cover only theme, language links and motion.
+- **i18n (ru/en)** — every URL is locale-prefixed (`prefixDefaultLocale`), UI strings
+  come from typed dictionaries, and switching language keeps the visitor on the same page.
+- **Dark and light themes** — dark is the default; a pre-paint script resolves
+  `localStorage` → `prefers-color-scheme` → fallback so the theme never flashes.
+- **Line-grid background** — a fixed 64px lattice at ~0.025 opacity, texture rather
+  than a drawn element.
+- **Motion with an escape hatch** — staggered scroll reveals, split-text hero and a
+  cursor spotlight, all gated behind one `prefers-reduced-motion` check. With reduced
+  motion the page is simply static.
+- **Content Collections** — projects are MDX with a zod schema: an invalid frontmatter
+  fails the build instead of rendering broken markup.
+- **SEO** — canonical, hreflang alternates, `x-default`, Open Graph + Twitter card with
+  a shared 1200×630 image, and a generated sitemap.
+- **Custom 404** — locale-neutral, theme-aware, `noindex`.
+- **Strict TypeScript** — `astro/tsconfigs/strict` plus `noUncheckedIndexedAccess`,
+  `exactOptionalPropertyTypes` and friends. No `@ts-ignore` anywhere.
+
+## Architecture
+
+```
+src/content/projects/<slug>/{en,ru}.mdx   authoring format, one file per locale
+        │
+        ▼  validated by src/content.config.ts (zod schema)
+src/i18n/projects.ts                      parses "<slug>/<lang>" ids into { slug, lang }
+        │                                 a locale without a file is hidden in that locale
+        ▼
+src/pages/[lang]/…                        getStaticPaths → one route per existing file
+        │
+        ▼
+src/layouts/BaseLayout.astro              canonical, hreflang, OG, fonts, theme, header/footer
+```
+
+UI strings live in `src/i18n/ui.ts`: `en` is the reference dictionary, its keys define
+`UIKey`, and `ru` is typed as `Record<UIKey, string>` — a missing translation is a build
+error, not a blank page. Technology names (`Python`, `FastAPI`) are proper nouns and live
+in `src/consts.ts` as data, so the two dictionaries cannot drift apart.
+
+## Tech Stack
+
+| Area | Technology |
 | --- | --- |
-| `undici@8.10.2` | `node >= 22.19.0` |
+| Framework | Astro 7 (static output) |
+| Language | TypeScript 5.9 (strict) |
+| Content | MDX via `@astrojs/mdx`, Astro Content Collections (zod) |
+| Styling | CSS custom properties (design tokens), scoped component styles |
+| Fonts | Self-hosted Inter and JetBrains Mono via the Astro Fonts API |
+| i18n | Hand-rolled typed dictionaries, locale-prefixed routing |
+| SEO | `@astrojs/sitemap`, canonical / hreflang / Open Graph |
+| Testing | Vitest |
+| Build tool | Vite |
+| Deployment | Vercel (static) |
+| Code style | `.editorconfig`, `.gitattributes` (LF) |
 
-Everything else sits lower (`astro@7.3.3` → `>=22.12.0`, `vite@8.3.0` →
-`^20.19.0 || >=22.12.0`). A scan of all 226 installed packages found nothing
-demanding more than `22.19.0`, so **22.22.0** is comfortably above the real
-requirement.
+## Project Structure
 
-Two things this number is *not*:
+```
+.
+├── astro.config.mjs          integrations, fonts, i18n routing, site origin
+├── package.json
+├── tsconfig.json
+├── vitest.config.ts
+├── docs/design.md            design brief
+├── public/
+│   ├── favicon.svg
+│   └── og.png                shared 1200×630 social preview
+└── src/
+    ├── consts.ts             contacts, stack, skill groups, terminal panel data
+    ├── content.config.ts     typed `projects` collection schema
+    ├── content/projects/     MDX content, one file per locale
+    ├── i18n/                 dictionaries, path helpers, content access layer (+ tests)
+    ├── layouts/
+    │   └── BaseLayout.astro  page shell: head, header, footer, theme
+    ├── components/           Astro components, no framework islands
+    ├── pages/
+    │   ├── index.astro       locale stub with redirect
+    │   ├── 404.astro         custom 404
+    │   └── [lang]/           home, projects list, project detail
+    └── styles/               tokens.css (design tokens) + global.css
+```
 
-- It is not dictated by `corepack`. Corepack is a tool bundled with Node, not a
-  dependency of this project — `corepack@0.36.0` does declare
-  `^22.22.2 || ^24.15.0 || >=26.0.0`, but that constrains the Node the Corepack
-  shim runs under, and it does not appear anywhere in `pnpm-lock.yaml`. It is
-  not what breaks an install here.
-- It is not a hard pin. The floor is deliberately set to `22.22.0` rather than
-  `22.22.2` so it cannot fail against Cloudflare Pages. Cloudflare resolves the
-  `22.x` line from its own build-image table and ignores `.nvmrc`; if it hands
-  the build `22.22.0`, a `>=22.22.2` floor would reject a Node that is in fact
-  perfectly capable of running this project, and the build would fail with
-  `ERR_PNPM_UNSUPPORTED_ENGINE`.
-
-That last failure is real history: the first Cloudflare Pages build died on
-`NODE_VERSION=22.12.0`, because `undici@8.10.2` needs `>=22.19.0`. The fix at
-the time was an exact `NODE_VERSION=22.22.2` pin in the Pages project settings,
-which works but leaves the build fragile — it depends on that one value staying
-set. Relaxing the floor to `22.22.0` means the repository itself no longer
-rejects what Cloudflare is likely to provide.
-
-`package.json#engines` plus `.nvmrc` are the source of truth visible in Git.
-Cloudflare reads its own `NODE_VERSION` environment variable, not `.nvmrc`, so
-that variable still needs to be set to a 22.x version at or above `22.22.0`.
-
-### Enable pnpm once
-
-pnpm is not installed globally; it ships with Node via Corepack. Enable it once
-(one-time, needs a shell with rights to write the Node install directory — on
-Windows run it as Administrator):
+## Quick Start
 
 ```sh
-corepack enable
+pnpm install
+pnpm dev       # dev server at http://localhost:4321 (fixed port, strictPort)
+pnpm build     # static output to dist/
+pnpm preview   # serve the built output
+pnpm check     # Astro + TypeScript diagnostics
+pnpm test      # unit tests (vitest)
 ```
 
-After that `pnpm` is on your `PATH` and picks up the exact version pinned in
-`packageManager` automatically. If you cannot run `corepack enable`, the
-zero-install equivalent is `corepack pnpm <command>`.
+## Development Notes
 
-## Commands
-
-| Command         | Action                                       |
-| --------------- | -------------------------------------------- |
-| `pnpm install`  | Install dependencies                         |
-| `pnpm dev`      | Dev server at http://localhost:4321          |
-| `pnpm build`    | Build the static site to `dist/`             |
-| `pnpm preview`  | Preview the built output                     |
-| `pnpm check`    | Astro + TypeScript checks                    |
-| `pnpm test`     | Unit tests (vitest)                          |
-
-The dev server uses a fixed port (`4321`) with `strictPort`, so the URL is stable.
-
-## Deployment
-
-Hosted on **Cloudflare Pages** as project `felagi-dev`, auto-deploying from
-`main`. Build command `pnpm build`, output directory `dist`, and
-`NODE_VERSION=22.22.2` in the project environment.
-
-The site is pure static output: no Pages Functions, no edge runtime. Everything
-`/` needs is in the page itself.
-
-### Language handling on `/`
-
-`/` is a static stub that picks a locale and redirects:
-
-- **JavaScript on** — an inline script in `<head>` reads `navigator.languages`
-  and sends the visitor to `/ru/` or `/en/`. One hop, no flash.
-- **JavaScript off** — a `<noscript>` meta refresh sends everyone to `/en/`,
-  and the visible links let them switch.
-
-Known limitation: with JavaScript disabled, a Russian visitor lands on `/en/`
-and must switch by hand. Detecting the browser language without JavaScript
-requires reading the `Accept-Language` request header, which a static file
-cannot see — it would need an edge runtime (Cloudflare Pages Function). That
-machinery was weighed against the ~0.1% of visitors affected and rejected: the
-site stays static.
-
-## Layout
-
-```
-public/            static assets served as-is (favicon)
-src/
-  components/      UI components (Astro, no framework islands)
-  layouts/         page shells
-  pages/           file-based routes
-  styles/          design tokens and global CSS
-```
-
-## Conventions
-
-- Commits in English, no `Co-Authored-By` trailer.
-- TypeScript is strict; do not silence the compiler with `@ts-ignore`.
+- **Node >= 22.22.2** (see `.nvmrc`) and **pnpm >= 10**.
+- pnpm ships with Node via Corepack, not as a global install. Enable it once with
+  `corepack enable` (on Windows this needs a shell with rights to write the Node
+  install directory). It then picks up the version pinned in `packageManager`.
+  Without it, `corepack pnpm <command>` is the zero-install equivalent.
+- **LF everywhere** — `.gitattributes` normalizes line endings, and `.editorconfig`
+  enforces charset, indentation and a final newline.
+- **Commits** — English, Conventional Commits, no `Co-Authored-By` trailer. The author
+  of a commit is the user only.
+- `pnpm check` and `pnpm build` must both pass before a commit.
 
 ## Roadmap
 
@@ -129,5 +135,17 @@ src/
 - [x] **CP2** — typed projects content collection
 - [x] **CP3** — pages: about, project list, project detail
 - [x] **CP4** — polish: responsiveness, motion, details
-- [x] **CP5** — SEO: meta, OG, hreflang, sitemap
-- [ ] **CP6** — production deploy and final Lighthouse pass
+- [x] **CP5** — SEO: meta, OG, hreflang, sitemap, custom 404
+- [x] **CP6** — production deploy and final Lighthouse pass
+
+## License
+
+[MIT](./LICENSE)
+
+## Author
+
+**FELAGI0**
+
+- GitHub: <https://github.com/FELAGI0>
+- Telegram: <https://t.me/olll07>
+- Email: <mailto:felagi2323@gmail.com>

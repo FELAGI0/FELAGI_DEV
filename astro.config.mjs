@@ -6,8 +6,8 @@ import { defineConfig, fontProviders } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
   // Absolute base for canonical URLs, hreflang alternates, OG tags and the
-  // sitemap. Production is the Cloudflare Pages URL (see docs/design.md).
-  site: 'https://felagi-dev.pages.dev',
+  // sitemap. Production is the Vercel deployment URL.
+  site: 'https://felagi-dev.vercel.app',
 
   // `.mdx` is the authoring format for project pages: MDX keeps frontmatter
   // (validated by the collection schema) while allowing components in the body
