@@ -1,0 +1,50 @@
+---
+title: FELAGI FLOW
+summary: Self-hosted workflow automation на FastAPI + React. PostgreSQL как очередь, live-логи по WebSocket, визуальный редактор, 315 тестов.
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - SQLAlchemy 2.0
+  - React
+  - TypeScript
+  - React Flow
+  - Docker
+repo: https://github.com/FELAGI0/FELAGI-FLOW
+demo: https://felagi-flow.vercel.app
+demoNote: backend cold start ~30s (Render free tier)
+date: 2026-10-12
+metric:
+  value: "8"
+  label: типов нод
+featured: true
+---
+
+Платформа автоматизации процессов: визуальный редактор workflow, движок
+исполнения на бэкенде и живой лог шагов. Мульти-тенантность с ролями и
+инвайтами, всё работает как один self-hosted сервис.
+
+## Что внутри
+
+- **Очередь на PostgreSQL** — `executions` служит и журналом, и рабочей
+  очередью: воркеры забирают задания через `FOR UPDATE SKIP LOCKED`,
+  владение продлевается heartbeat'ами, зависшие блокировки возвращаются
+  в работу. Внешний брокер не нужен.
+- **Live-логи** — `LISTEN/NOTIFY` доставляет каждый завершённый шаг в браузер
+  через WebSocket, без опроса.
+- **Три роли процесса** — API отдаёт REST и WebSocket, worker выполняет
+  прогоны, scheduler ставит задачи по cron; все делят одну базу.
+- **Visual editor** — граф на React Flow с 8 типами нод, от триггеров до LLM и
+  HTTP, с версионированием черновика и публикации.
+
+## Стек
+
+FastAPI и асинхронный SQLAlchemy 2.0 поверх PostgreSQL 16 на бэкенде, React 19
+и TypeScript на фронтенде, React Flow для графа. 315 тестов (258 backend +
+57 frontend), окружение в Docker.
+
+## Демо
+
+Фронтенд на Vercel, бэкенд на Render free tier — первый запрос после простоя
+может занять около 30 секунд, пока инстанс поднимается. Это ограничение
+бесплатного тарифа, а не проблема приложения.
