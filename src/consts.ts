@@ -19,7 +19,7 @@ export const OWNER_HANDLE = 'FELAGI0';
 
 /** Human-readable page description default. */
 export const SITE_DESCRIPTION =
-  'Full-stack developer: Python, FastAPI, PostgreSQL, React, TypeScript. Portfolio and selected projects.';
+  'Backend developer: Python, FastAPI, PostgreSQL, React, TypeScript. Portfolio and selected projects.';
 
 /**
  * Outbound contact links, in the order the brief lists them (§7 Contacts).

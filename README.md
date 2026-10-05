@@ -1,6 +1,6 @@
 # FELAGI_DEV
 
-Static portfolio site of a full-stack developer, built with Astro.
+Static portfolio site of a backend developer, built with Astro.
 There is no backend: content lives in the repository and the build produces plain HTML.
 
 [![Astro](https://img.shields.io/badge/Astro-7-ff5d01?logo=astro&logoColor=white)](https://astro.build/)

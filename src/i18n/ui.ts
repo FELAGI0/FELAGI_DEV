@@ -20,7 +20,7 @@ const en = {
 
   // Hero
   'home.name': 'Artem',
-  'home.role': 'Full-stack Developer',
+  'home.role': 'Backend Developer',
   'home.tagline':
     'I design APIs, automate processes and turn ideas into working services.',
 
@@ -30,7 +30,7 @@ const en = {
 
   // About
   'about.p1':
-    'Full-stack developer. I design APIs with FastAPI, work with async SQLAlchemy, PostgreSQL, JWT authentication and RBAC. Frontend — React and TypeScript. I build SaaS and CRM products — from database schema to UI.',
+    'Backend developer focused on Python and FastAPI. I design APIs and work with async SQLAlchemy, PostgreSQL, JWT authentication and RBAC. Frontend — React and TypeScript, when a full product is needed. I build backends for SaaS and CRM — from database schema to production deploy.',
   'about.p2':
     'I enjoy not just writing code, but building projects that can be deployed and grown as a product. My favorite moment is when the whole system comes alive — from docker compose up to live endpoints.',
   'about.p3':
@@ -41,7 +41,7 @@ const en = {
   'about.now.learningLabel': 'Learning:',
   'about.now.learning': 'OAuth, distributed systems patterns',
   'about.now.openLabel': 'Open to:',
-  'about.now.open': 'full-stack roles in product teams',
+  'about.now.open': 'backend roles in product teams',
 
   // Principles
   'principles.title': 'Principles',
@@ -58,7 +58,7 @@ const en = {
 
   // Contacts
   'contacts.title': 'Contacts',
-  'contacts.note': 'Open to full-stack work and collaboration.',
+  'contacts.note': 'Open to backend work and collaboration.',
 
   'projects.title': 'Projects',
   'projects.intro':
@@ -83,7 +83,7 @@ const ru: Record<UIKey, string> = {
 
   // Hero
   'home.name': 'Артем',
-  'home.role': 'Full-stack разработчик',
+  'home.role': 'Backend-разработчик',
   'home.tagline':
     'Проектирую API, автоматизирую процессы и превращаю идеи в рабочие сервисы.',
 
@@ -93,7 +93,7 @@ const ru: Record<UIKey, string> = {
 
   // About
   'about.p1':
-    'Full-stack разработчик. Проектирую API на FastAPI, работаю с async SQLAlchemy, PostgreSQL, JWT-авторизацией и RBAC. Frontend — React и TypeScript. Строю продукты для SaaS и CRM — от схемы БД до UI.',
+    'Backend-разработчик с фокусом на Python и FastAPI. Проектирую API, работаю с async SQLAlchemy, PostgreSQL, JWT-авторизацией и RBAC. Frontend — React и TypeScript, когда нужно сделать полный продукт. Строю backend для SaaS и CRM — от схемы БД до деплоя в production.',
   'about.p2':
     'Нравится не просто писать код, а создавать проекты, которые можно развернуть и развивать как продукт. Больше всего люблю момент, когда система запускается целиком — от docker compose up до живых эндпоинтов.',
   'about.p3':
@@ -104,7 +104,7 @@ const ru: Record<UIKey, string> = {
   'about.now.learningLabel': 'Изучаю:',
   'about.now.learning': 'OAuth, паттерны распределённых систем',
   'about.now.openLabel': 'Открыт к:',
-  'about.now.open': 'full-stack-ролям в продуктовых командах',
+  'about.now.open': 'backend-ролям в продуктовых командах',
 
   // Principles
   'principles.title': 'Принципы',
@@ -121,7 +121,7 @@ const ru: Record<UIKey, string> = {
 
   // Contacts
   'contacts.title': 'Контакты',
-  'contacts.note': 'Открыт к full-stack-задачам и сотрудничеству.',
+  'contacts.note': 'Открыт к backend-задачам и сотрудничеству.',
 
   'projects.title': 'Проекты',
   'projects.intro':
