@@ -137,6 +137,23 @@ const roleWords = t(lang, 'home.role').split(' ');
       <div class="split__body">
         <p class="lead">{t(lang, 'about.p1')}</p>
         <p class="lead">{t(lang, 'about.p2')}</p>
+        <p class="lead">{t(lang, 'about.p3')}</p>
+
+        <h3 class="about-now__title">{t(lang, 'about.now.title')}</h3>
+        <ul class="about-now">
+          <li class="about-now__item">
+            <span class="about-now__label">{t(lang, 'about.now.workingLabel')}</span>
+            <span class="about-now__value">{t(lang, 'about.now.working')}</span>
+          </li>
+          <li class="about-now__item">
+            <span class="about-now__label">{t(lang, 'about.now.learningLabel')}</span>
+            <span class="about-now__value">{t(lang, 'about.now.learning')}</span>
+          </li>
+          <li class="about-now__item">
+            <span class="about-now__label">{t(lang, 'about.now.openLabel')}</span>
+            <span class="about-now__value">{t(lang, 'about.now.open')}</span>
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -600,6 +617,49 @@ const roleWords = t(lang, 'home.role').split(' ');
 
   .split__body > :last-child {
     margin-bottom: 0;
+  }
+
+  /*
+   * The "Now" block at the end of About: a small heading and a three-row list.
+   *
+   * Sits below the three lead paragraphs as a compact aside — the heading steps
+   * down to a chip-sized label (the same de-emphasised tier as the skill-card
+   * titles) so it reads as a sub-part of About rather than a peer section. The
+   * rows use the muted label / full-strength value pairing already used across
+   * the page, so the block inherits the existing contrast relationships.
+   */
+  .about-now__title {
+    margin: var(--space-8) 0 var(--space-3);
+    font-size: var(--text-chip);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .about-now {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about-now__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-2);
+    padding-block: var(--space-1);
+    font-size: var(--text-sm);
+  }
+
+  .about-now__label {
+    flex: none;
+    font-family: var(--font-mono);
+    color: var(--fg-muted);
+  }
+
+  .about-now__value {
+    color: var(--fg);
   }
 
   /*
