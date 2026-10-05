@@ -21,16 +21,24 @@ import { t } from '@/i18n/utils';
 interface Props {
   /** The project to render, with its slug, locale and validated data. */
   project: Project;
+  /**
+   * Render as the one large card that spans the full width of a
+   * selected-projects grid. Set only for the first (newest) featured project on
+   * the home page; the modifier carries no data of its own, so the same card
+   * markup and field order are used either way — see the `--featured` rules in
+   * the style block below.
+   */
+  featured?: boolean;
 }
 
-const { project } = Astro.props;
+const { project, featured = false } = Astro.props;
 const { slug, lang, entry } = project;
 const { data } = entry;
 
 const detailHref = `/${lang}/projects/${slug}/`;
 ---
 
-<li class="project-card">
+<li class:list={['project-card', { 'project-card--featured': featured }]}>
   {/*
     The title morphs into the detail page's heading. `transition:name` is keyed
     by slug so the pair is unique on a page with several cards, and
@@ -93,6 +101,48 @@ const detailHref = `/${lang}/projects/${slug}/`;
   .project-card:hover {
     border-color: var(--border-strong);
     transform: translateY(-2px);
+  }
+
+  /*
+   * The one large card in a selected-projects grid (home page only). It carries
+   * no different data — the same fields render in the same order — so this is
+   * purely a scale step: more padding, a bigger title, a bigger headline figure
+   * and more air between the blocks. The grid that gives it the full row lives
+   * on the home page; here the card only widens to whatever cell it is placed
+   * in, capped at the container so it can never overflow.
+   */
+  .project-card--featured {
+    max-width: 100%;
+    padding: var(--space-8);
+  }
+
+  .project-card--featured .project-card__title {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-heading);
+  }
+
+  .project-card--featured .project-card__summary {
+    max-width: 60ch;
+    margin-bottom: var(--space-6);
+    font-size: var(--text-lg);
+    color: var(--fg);
+  }
+
+  .project-card--featured .stack {
+    margin-bottom: var(--space-6);
+  }
+
+  .project-card--featured .project-card__metric {
+    margin-bottom: var(--space-6);
+  }
+
+  .project-card--featured .project-card__metric-value {
+    font-size: var(--text-3xl);
+  }
+
+  .project-card--featured .project-card__metric-label {
+    font-size: var(--text-base);
   }
 
   /*

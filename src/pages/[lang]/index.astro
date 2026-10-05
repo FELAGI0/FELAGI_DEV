@@ -104,8 +104,8 @@ const roleWords = t(lang, 'home.role').split(' ');
       {
         featured.length > 0 ? (
           <ul class="project-list">
-            {featured.map((project) => (
-              <ProjectCard project={project} />
+            {featured.map((project, index) => (
+              <ProjectCard project={project} featured={index === 0} />
             ))}
           </ul>
         ) : (
@@ -484,15 +484,24 @@ const roleWords = t(lang, 'home.role').split(' ');
   }
 
   /*
-   * Two cards side by side from 1280px up. The base grid (gap, reset margin)
-   * comes from `.project-list` in global.css — shared with the projects index.
+   * Selected projects: one large card, then the rest in a row.
    *
-   * The band is full-bleed, so at that width each card gets roughly 640px —
-   * enough that the summary sits on two lines instead of four. Below 1280px a
-   * single column is kept: two ~470px columns would wrap the summary into a
-   * paragraph too narrow to scan.
+   * The first (newest) featured project takes the full width of the grid; the
+   * remaining cards flow into two columns beneath it. The featured card is
+   * tagged by `ProjectCard` with its own `--featured` modifier, so the span is
+   * written against a `:global()` class — that `<li>` carries the component's
+   * scope id, not this page's, and a plain descendant selector would not reach
+   * it.
+   *
+   * The breakpoint is 768px, matching the brief: below it everything — the
+   * featured card and the two below it — stacks in a single column, so at 360px
+   * the section is one readable column rather than two narrow ones.
    */
-  @media (min-width: 80rem) {
+  .project-list > :global(.project-card--featured) {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
     .project-list {
       grid-template-columns: repeat(2, 1fr);
     }
