@@ -5,16 +5,16 @@ There is no backend: content lives in the repository and the build produces plai
 
 [![Astro](https://img.shields.io/badge/Astro-7-ff5d01?logo=astro&logoColor=white)](https://astro.build/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?logo=vercel&logoColor=white)](https://felagi-dev.vercel.app/)
+[![Vercel](https://img.shields.io/badge/Vercel-deployed-000000?logo=vercel&logoColor=white)](https://felagi.ru/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-felagi--dev.vercel.app-blue)](https://felagi-dev.vercel.app/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-felagi.ru-blue)](https://felagi.ru/)
 
 ## Live Demo
 
-<https://felagi-dev.vercel.app>
+<https://felagi.ru>
 
-- English: <https://felagi-dev.vercel.app/en/>
-- Русский: <https://felagi-dev.vercel.app/ru/>
+- English: <https://felagi.ru/en/>
+- Русский: <https://felagi.ru/ru/>
 
 The root URL is a locale-neutral stub: it reads `navigator.languages` and sends
 the visitor to `/en/` or `/ru/`. With JavaScript disabled a `<noscript>` meta
