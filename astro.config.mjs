@@ -6,8 +6,10 @@ import { defineConfig, fontProviders } from 'astro/config';
 // https://astro.build/config
 export default defineConfig({
   // Absolute base for canonical URLs, hreflang alternates, OG tags and the
-  // sitemap. Production is the Vercel deployment URL.
-  site: 'https://felagi-dev.vercel.app',
+  // sitemap. Production is the custom domain; `felagi-dev.vercel.app` still
+  // serves the same build, so every SEO tag has to name this one to keep the
+  // duplicate host out of the index.
+  site: 'https://felagi.ru',
 
   // `.mdx` is the authoring format for project pages: MDX keeps frontmatter
   // (validated by the collection schema) while allowing components in the body
