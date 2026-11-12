@@ -30,16 +30,16 @@ const en = {
 
   // About
   'about.p1':
-    'Backend developer focused on Python and FastAPI. I design APIs and work with async SQLAlchemy, PostgreSQL, JWT authentication and RBAC. Frontend — React and TypeScript, when a full product is needed. I build backends for SaaS and CRM — from database schema to production deploy.',
+    'Backend developer with 2+ years of experience building web applications. I build backends with Python, FastAPI and PostgreSQL — from database schema to production deploy. Worked with both high-load services and MVPs from scratch.',
   'about.p2':
-    'I enjoy not just writing code, but building projects that can be deployed and grown as a product. My favorite moment is when the whole system comes alive — from docker compose up to live endpoints.',
+    'On recent projects I integrated LLM modules into business logic (−40% query processing time), set up WebSocket for real-time features (chat, monitoring), and optimized SQL queries with Redis caching (−35% server load at peak). I care about code quality: mypy, Pydantic, Ruff, pytest. Set up CI/CD with Docker and GitLab CI — releases 25% faster.',
   'about.p3':
-    'Three projects in my portfolio — all with open source, live demos and tests (315 / 195 / 243).',
+    'Six projects in my portfolio — all with open source, live demos and tests. Stack: Python, FastAPI, SQLAlchemy 2.0 async, PostgreSQL, React, TypeScript, Docker.',
   'about.now.title': 'Now',
   'about.now.workingLabel': 'Working on:',
-  'about.now.working': 'FELAGI-Review',
+  'about.now.working': 'Code review and refactoring my portfolio; planning new projects',
   'about.now.learningLabel': 'Learning:',
-  'about.now.learning': 'OAuth, distributed systems patterns',
+  'about.now.learning': 'OAuth, LLM integrations, distributed systems patterns',
   'about.now.openLabel': 'Open to:',
   'about.now.open': 'backend roles in product teams',
 
@@ -93,18 +93,18 @@ const ru: Record<UIKey, string> = {
 
   // About
   'about.p1':
-    'Backend-разработчик с фокусом на Python и FastAPI. Проектирую API, работаю с async SQLAlchemy, PostgreSQL, JWT-авторизацией и RBAC. Frontend — React и TypeScript, когда нужно сделать полный продукт. Строю backend для SaaS и CRM — от схемы БД до деплоя в production.',
+    'Backend-разработчик с 2+ годами опыта в создании веб-приложений. Строю backend на Python, FastAPI и PostgreSQL — от схемы БД до деплоя в production. Работал как с высоконагруженными сервисами, так и с MVP с нуля.',
   'about.p2':
-    'Нравится не просто писать код, а создавать проекты, которые можно развернуть и развивать как продукт. Больше всего люблю момент, когда система запускается целиком — от docker compose up до живых эндпоинтов.',
+    'На последних проектах интегрировал LLM-модули в бизнес-логику (−40% времени обработки запросов), настраивал WebSocket для real-time (чат, мониторинг) и оптимизировал SQL-запросы с кэшированием в Redis (−35% нагрузки при пиках). Слежу за качеством кода: mypy, Pydantic, Ruff, тесты на pytest. Настраивал CI/CD через Docker и GitLab CI — релизы быстрее на 25%.',
   'about.p3':
-    'Три проекта в портфолио — все с открытым исходником, живыми демо и тестами (315 / 195 / 243).',
+    'Шесть проектов в портфолио — все с открытым исходником, живыми демо и тестами. Стек: Python, FastAPI, SQLAlchemy 2.0 async, PostgreSQL, React, TypeScript, Docker.',
   'about.now.title': 'Сейчас',
   'about.now.workingLabel': 'Работаю над:',
-  'about.now.working': 'FELAGI-Review',
+  'about.now.working': 'Код-ревью и рефакторинг портфолио; планирую новые проекты',
   'about.now.learningLabel': 'Изучаю:',
-  'about.now.learning': 'OAuth, паттерны распределённых систем',
+  'about.now.learning': 'OAuth, LLM-интеграции, паттерны распределённых систем',
   'about.now.openLabel': 'Открыт к:',
-  'about.now.open': 'backend-ролям в продуктовых командах',
+  'about.now.open': 'Backend-ролям в продуктовых командах',
 
   // Principles
   'principles.title': 'Принципы',
