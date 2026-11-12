@@ -1,0 +1,51 @@
+---
+title: BioPhysLab
+summary: A biophysics study toolkit for medical students — ECG reading, problem solving and LLM explanations. Live on biophyslab.ru.
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - SQLAlchemy 2.0
+  - React
+  - TypeScript
+  - Tailwind CSS
+  - Docker
+repo: https://github.com/FELAGI0/BioPhysLab
+demo: https://biophyslab.ru
+date: 2026-10-28
+metric:
+  value: "6"
+  label: modules
+featured: true
+order: 2
+---
+
+A biophysics web app for medical schools: it reads an ECG from a photo, solves
+problems step by step and explains phenomena at the level the student asks for —
+from first year to exam prep.
+
+## What is inside
+
+- **Six modules** — ECG, problems, explanations, a Nernst calculator, stats and
+  history; they switch by tab, each keeping its own state.
+- **Anonymous cookie session** — the tool is meant to work without signing up,
+  while a JWT attaches history to an account and enables sharing.
+- **Rate limit** — 30 AI requests per hour per session, an in-memory window on
+  a single uvicorn worker: LLM calls cost money, so the cap sits on the
+  endpoints rather than only in the UI.
+- **Safety guard** — questions outside medicine and biophysics are rejected on
+  the way in.
+- **PDF export** through fpdf2 with a Unicode font for Cyrillic, plus a public
+  result link by token.
+- **Formulas** render with KaTeX — both in LLM answers and in the calculator.
+
+## Stack
+
+FastAPI, async SQLAlchemy 2.0, Alembic and PostgreSQL on the backend; React +
+Vite + TypeScript and Tailwind on the frontend. The model is called through an
+OpenAI-compatible proxy, and the key lives only in the server-side `.env`.
+
+## Demo
+
+[biophyslab.ru](https://biophyslab.ru) — no sign-up needed; history is tied to
+the cookie session.

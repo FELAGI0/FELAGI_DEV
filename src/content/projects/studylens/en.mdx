@@ -1,0 +1,48 @@
+---
+title: StudyLens
+summary: A Chrome extension — highlight an area of the screen with a problem and get a worked answer. Five response modes on hotkeys, streaming, KaTeX.
+stack:
+  - JavaScript
+  - Chrome Extension
+  - Manifest V3
+  - OpenAI API
+repo: https://github.com/FELAGI0/StudyLens
+date: 2026-10-08
+metric:
+  value: "5"
+  label: response modes
+featured: true
+order: 5
+---
+
+A Chrome extension: press a hotkey, drag over the part of the screen holding a
+problem, and the answer types itself into a panel over the page as it is
+generated.
+
+## What is inside
+
+- **Five modes** — explain, brief, step by step, translate, find the mistake.
+  Four get their own hotkey; Chrome only allows four automatic shortcuts, so the
+  fifth is assigned by hand.
+- **No file left on disk** — the region is captured with `captureVisibleTab` and
+  cropped to the drag rectangle, so exactly what the user outlined is read.
+  A selection smaller than 5×5, or Esc, cancels the capture.
+- **Streaming** — the response arrives token by token over SSE and is appended
+  to the panel instead of appearing all at once seconds later.
+- **Markdown and formulas** — `marked` renders the answer, `DOMPurify` sanitises
+  it and KaTeX draws the formulas. All of it runs in the background, so the tab
+  stays responsive.
+- **Plain JS, ~58 KB** of first-party code, no bundler and no npm dependencies:
+  everything needed (marked, DOMPurify, KaTeX with its fonts) sits in `lib/`
+  locally — the extension loads nothing from a CDN.
+
+## Stack
+
+Manifest V3 and plain JavaScript: a service worker in `background.js`, the
+selection overlay in a content script, a popup for settings. The API is
+OpenAI-compatible Chat Completions, with the key in `chrome.storage`.
+
+## Install
+
+Not published to the Chrome Web Store yet: `chrome://extensions` → developer
+mode → "Load unpacked" → the project folder.

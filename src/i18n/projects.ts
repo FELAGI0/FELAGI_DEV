@@ -49,6 +49,47 @@ function parseProjectId(id: string): { slug: string; lang: Lang } | null {
   return { slug, lang: last };
 }
 
+/**
+ * The pinned position of a project, or `null` when it is not pinned.
+ *
+ * `order` is optional in the schema, so it arrives as `number | undefined`; an
+ * absent order means "after every pinned entry" rather than "first", which is
+ * what a missing value would otherwise read as to a `<` comparison.
+ */
+function pinnedOrder(project: Project): number | null {
+  return project.entry.data.order ?? null;
+}
+
+/**
+ * Sort order shared by every list in this module.
+ *
+ * Pinned entries (`order` set) come first, ascending; everything else follows
+ * newest `date` first. Unpinned entries therefore stay discoverable by
+ * recency while the curated pins keep a hand-chosen sequence, and adding a
+ * project without touching anyone else's frontmatter keeps working.
+ *
+ * `date` is an ISO `YYYY-MM-DD` string, so a plain string comparison is both
+ * exact and cheap — no `Date` parsing, no timezone surprises. Ties fall back to
+ * the slug so the order is stable across builds rather than depending on
+ * filesystem order.
+ */
+function compareProjects(a: Project, b: Project): number {
+  const orderA = pinnedOrder(a);
+  const orderB = pinnedOrder(b);
+
+  if (orderA !== null && orderB !== null && orderA !== orderB) {
+    return orderA - orderB;
+  }
+  // A pinned entry outranks an unpinned one, whatever the dates say.
+  if (orderA !== null && orderB === null) return -1;
+  if (orderA === null && orderB !== null) return 1;
+
+  if (a.entry.data.date !== b.entry.data.date) {
+    return a.entry.data.date < b.entry.data.date ? 1 : -1;
+  }
+  return a.slug.localeCompare(b.slug);
+}
+
 /** Every project for one locale. */
 async function getProjects(lang: Lang): Promise<Project[]> {
   const entries = await getCollection('projects');
@@ -63,25 +104,13 @@ async function getProjects(lang: Lang): Promise<Project[]> {
   return projects;
 }
 
-/**
- * Projects for one locale, newest first.
- *
- * `date` is an ISO `YYYY-MM-DD` string, so a plain string comparison is both
- * exact and cheap — no `Date` parsing, no timezone surprises. Ties fall back to
- * the slug so the order is stable across builds rather than depending on
- * filesystem order.
- */
+/** Every project for one locale in display order — pinned first, see `compareProjects`. */
 export async function getProjectsSorted(lang: Lang): Promise<Project[]> {
   const projects = await getProjects(lang);
-  return projects.sort((a, b) => {
-    if (a.entry.data.date !== b.entry.data.date) {
-      return a.entry.data.date < b.entry.data.date ? 1 : -1;
-    }
-    return a.slug.localeCompare(b.slug);
-  });
+  return projects.sort(compareProjects);
 }
 
-/** Only the projects marked `featured`, newest first. */
+/** Only the projects marked `featured`, in display order. */
 export async function getFeaturedProjects(lang: Lang): Promise<Project[]> {
   const projects = await getProjectsSorted(lang);
   return projects.filter((project) => project.entry.data.featured);

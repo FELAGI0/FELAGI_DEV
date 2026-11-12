@@ -1,0 +1,56 @@
+---
+title: Rivalens
+summary: Сервис мониторинга сайтов конкурентов — снапшоты, diff по сущностям и AI-сводка изменений на русском. Живёт на rivalens.ru.
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - SQLAlchemy
+  - Alembic
+  - Next.js
+  - TypeScript
+  - Docker
+repo: https://github.com/FELAGI0/Rivalens
+demo: https://rivalens.ru
+demoNote: боевой VPS за nginx; нужна регистрация
+date: 2026-10-28
+metric:
+  value: "35"
+  label: тестов pytest
+featured: true
+order: 1
+---
+
+SaaS для отслеживания конкурентов: по расписанию скачивает их страницы,
+сравнивает с прошлыми снапшотами по заголовкам, ссылкам и ценам и генерирует
+краткую сводку изменений на русском через LLM.
+
+## Что внутри
+
+- **Пайплайн** — fetch → extract → diff → summarize. Снапшоты и изменения
+  хранятся отдельно от сводок, поэтому diff пересчитывается без повторных
+  запросов к LLM.
+- **Diff по сущностям** — сравнение не HTML-строк, а распознанных заголовков,
+  ссылок и цен; из этого же строятся график цен и история изменений.
+- **Scheduler** — APScheduler внутри lifespan FastAPI, плюс ручной «Check now»
+  с cooldown и защитой от параллельного прогона.
+- **Биллинг** — YooKassa: план поднимается только вебхуком `payment.succeeded`,
+  причём статус платежа перепроверяется через API, а не берётся из тела
+  уведомления. Лимиты по тарифам (free / pro / business) режутся на уровне
+  эндпоинтов.
+- **SSRF-guard** — ручка конкурента принимает только абсолютные http(s) URL,
+  петлевые и приватные адреса отклоняются ещё до fetcher'а.
+- **35 тестов pytest** — auth, биллинг, CRUD, шедулер, пайплайн и guard под
+  throwaway Postgres через testcontainers.
+
+## Стек
+
+FastAPI + SQLAlchemy + Alembic + PostgreSQL 16 на бэкенде, Next.js 15 (App
+Router, TypeScript) и Tailwind на фронтенде. Fetcher — httpx + BeautifulSoup
+без Playwright: сервис должен укладываться в 2 ГБ RAM на VPS. Всё в Docker
+Compose, в проде — nginx и certbot.
+
+## Демо
+
+[rivalens.ru](https://rivalens.ru) — прод на VPS. Нужна регистрация: на новом
+аккаунте сразу создаётся демо-конкурент, чтобы не начинать с пустого экрана.

@@ -1,0 +1,53 @@
+---
+title: quotes-service
+summary: A quotes-catalog storefront — a 110 MB snapshot is streamed in, bodies are parsed line by line, and the upstream catalog sits behind a circuit breaker.
+stack:
+  - Python
+  - FastAPI
+  - uvicorn
+  - orjson
+  - httpx
+  - Docker
+repo: https://github.com/FELAGI0/quotes-service
+date: 2026-09-23
+metric:
+  value: "110"
+  label: MB snapshot
+featured: false
+order: 6
+---
+
+A storefront for a quotes catalog: it accepts a full snapshot of the catalog and
+serves quotes to readers one at a time. All state lives in a single process —
+no external database, cache or broker.
+
+## What is inside
+
+- **The snapshot is streamed** — a body of up to 110 MB is parsed chunk by chunk
+  and line by line with `orjson`; it is never held in memory whole. A broken
+  record is skipped and counted in `dropped`, a broken envelope is a 400.
+- **A packed buffer instead of objects** — record bodies live in one `bytearray`
+  with a length prefix, an `id → offset` index, and the set of all ids kept
+  separately. The storefront therefore still knows an id after its body was
+  evicted, and the byte-budgeted LRU acts as a fuse rather than the normal path.
+- **A circuit breaker on the catalog** — 5 consecutive transport failures
+  (timeout, refused) open the circuit with backoff and jitter; half-open lets one
+  probe through. A 503 does *not* open it: that is the catalog answering, not a
+  broken link, so `Retry-After` is honoured instead.
+- **Honest counters** — `X-Source: LOCAL | CATALOG` on every response, and
+  `/stats` reports how much was served from memory, how much was read from the
+  catalog and how many bodies were evicted. A 404 from the catalog is not cached,
+  and DELETE leaves a tombstone until the next snapshot.
+- **Fits in 256 MB of RAM** — peaking around 220 MB on a 340,000-record
+  (114 MB) snapshot, with a 0.5 CPU limit and a single uvicorn worker.
+
+## Stack
+
+Python 3.13, FastAPI, uvicorn, orjson, httpx and uvloop. The whole application
+is a little under 18 KB of code across four modules; built with `pip` into a
+multi-stage image and run as a non-root user.
+
+## Checking it
+
+`scripts/contract_test.py` runs the whole contract against a catalog stub:
+import, LOCAL/CATALOG, field boundaries, tombstones and the shape of `/stats`.

@@ -79,6 +79,17 @@ const projects = defineCollection({
 
     /** Shows on the home page's selected-projects block. */
     featured: z.boolean(),
+
+    /**
+     * Pinned position, low number first. Optional.
+     *
+     * `date` alone cannot express "this is the flagship": the home page's
+     * selected block is a curated order, not a recency list, and Rivalens is
+     * pinned first even though newer projects exist. Entries without `order`
+     * sort after every pinned one, still by date, so adding a project never
+     * requires touching its neighbours.
+     */
+    order: z.number().int().positive().optional(),
   }),
 });
 

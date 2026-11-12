@@ -30,7 +30,7 @@ export const getStaticPaths = (() =>
 const { lang } = Astro.params as { lang: Lang };
 
 /** Show at most this many featured projects on the home page. */
-const MAX_FEATURED = 3;
+const MAX_FEATURED = 5;
 
 const featured = (await getFeaturedProjects(lang)).slice(0, MAX_FEATURED);
 

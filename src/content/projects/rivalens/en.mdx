@@ -1,0 +1,58 @@
+---
+title: Rivalens
+summary: Competitor-site monitoring — snapshots, entity-level diffs and an AI summary of what changed, in Russian. Running on rivalens.ru.
+stack:
+  - Python
+  - FastAPI
+  - PostgreSQL
+  - SQLAlchemy
+  - Alembic
+  - Next.js
+  - TypeScript
+  - Docker
+repo: https://github.com/FELAGI0/Rivalens
+demo: https://rivalens.ru
+demoNote: production VPS behind nginx; sign-up required
+date: 2026-10-28
+metric:
+  value: "35"
+  label: pytest tests
+featured: true
+order: 1
+---
+
+A SaaS for keeping an eye on competitors: on a schedule it downloads their
+pages, compares them with earlier snapshots by headings, links and prices, and
+writes a short Russian summary of what changed with an LLM.
+
+## What is inside
+
+- **Pipeline** — fetch → extract → diff → summarize. Snapshots and changes are
+  stored apart from the summaries, so a diff can be recomputed without calling
+  the LLM again.
+- **Entity diffs** — comparison over the headings, links and prices that were
+  extracted, not over raw HTML; the price chart and change history are built
+  from the same rows.
+- **Scheduler** — APScheduler inside the FastAPI lifespan, plus a manual
+  "Check now" with a cooldown and protection against overlapping runs.
+- **Billing** — YooKassa: a plan is raised only by the `payment.succeeded`
+  webhook, and the payment status is re-fetched from the API rather than trusted
+  from the notification body. Plan limits (free / pro / business) are enforced
+  at the endpoint level.
+- **SSRF guard** — a competitor accepts only absolute http(s) URLs; loopback and
+  private hosts are rejected before the fetcher ever sees them.
+- **35 pytest tests** — auth, billing, CRUD, scheduler, pipeline and the guard,
+  against a throwaway Postgres via testcontainers.
+
+## Stack
+
+FastAPI + SQLAlchemy + Alembic + PostgreSQL 16 on the backend, Next.js 15 (App
+Router, TypeScript) and Tailwind on the frontend. The fetcher is httpx +
+BeautifulSoup with no Playwright: the service has to fit in 2 GB of RAM on a
+VPS. Docker Compose throughout, nginx and certbot in production.
+
+## Demo
+
+[rivalens.ru](https://rivalens.ru) — the production VPS. Sign-up is required: a
+new account is seeded with a demo competitor so it never opens on an empty
+screen.
